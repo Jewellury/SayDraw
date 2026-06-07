@@ -1,0 +1,27 @@
+export interface Scene {
+  id: number;
+  speaker: 'dad' | 'kid';
+  text: string;
+  svg: string;
+}
+
+export interface StoryState {
+  scenes: Scene[];
+  current: number;
+  speaker: 'dad' | 'kid';
+}
+
+export interface GenerateRequest {
+  storySoFar: string;
+  newLine: string;
+  speaker: 'dad' | 'kid';
+}
+
+export interface GenerateResponse {
+  narration: string;
+  svg: string;
+}
+
+export interface GenerateError {
+  error: string;
+}

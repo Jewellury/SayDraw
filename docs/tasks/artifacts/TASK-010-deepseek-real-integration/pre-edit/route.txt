@@ -1,0 +1,68 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { chatCompletion } from '@/lib/ai/deepseek';
+import { SCENE_SYS } from '@/lib/ai/prompts';
+import { getMockScene } from '@/lib/ai/mock';
+import { sanitizeSvg } from '@/lib/svg/sanitizeSvg';
+import type { GenerateRequest, GenerateResponse, GenerateError } from '@/lib/story/types';
+
+let mockCounter = 0;
+
+function parseScene(raw: string): { narration: string; svg: string } {
+  let t = String(raw || '').replace(/```json/gi, '').replace(/```/g, '').trim();
+  const s = t.indexOf('{');
+  const e = t.lastIndexOf('}');
+  if (s !== -1 && e !== -1) t = t.slice(s, e + 1);
+  try {
+    const o = JSON.parse(t);
+    if (o && o.svg) return { narration: o.narration || '', svg: o.svg };
+  } catch {
+    // fall through
+  }
+  // Fallback: extract raw <svg>...</svg>
+  const m = String(raw).match(/<svg[\s\S]*?<\/svg>/i);
+  return { narration: '', svg: m ? m[0] : '' };
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const body: GenerateRequest = await req.json();
+    const { storySoFar, newLine, speaker } = body;
+
+    if (!newLine || !newLine.trim()) {
+      const err: GenerateError = { error: '请说一句话再来画' };
+      return NextResponse.json(err, { status: 400 });
+    }
+
+    const hasKey = !!process.env.DEEPSEEK_API_KEY;
+
+    if (!hasKey) {
+      const scene = getMockScene(mockCounter++);
+      const safeSvg = sanitizeSvg(scene.svg);
+      const res: GenerateResponse = { narration: scene.narration, svg: safeSvg };
+      return NextResponse.json(res);
+    }
+
+    const userMessage =
+      '目前的故事：\n' +
+      (storySoFar || '') +
+      '\n\n最新这一句是' +
+      (speaker === 'dad' ? '爸爸' : '宝宝') +
+      '说的：' +
+      newLine;
+
+    const raw = await chatCompletion([
+      { role: 'system', content: SCENE_SYS },
+      { role: 'user', content: userMessage },
+    ]);
+
+    const { narration, svg } = parseScene(raw);
+    const safeSvg = sanitizeSvg(svg);
+    const res: GenerateResponse = { narration: narration || newLine, svg: safeSvg };
+    return NextResponse.json(res);
+  } catch (e) {
+    const message = e instanceof Error ? e.message : 'Unknown error';
+    console.error('[api/story/generate]', message);
+    const err: GenerateError = { error: '画板打了个小盹，再说一次试试' };
+    return NextResponse.json(err, { status: 500 });
+  }
+}

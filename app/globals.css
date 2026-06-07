@@ -1,0 +1,724 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;700&display=swap');
+
+/* ---------- Design Tokens ---------- */
+:root {
+  --paper: #f6f1e3;
+  --paper-card: #fffdf7;
+  --ink: #1f1c18;
+  --ink-soft: rgba(31, 28, 24, 0.55);
+  --accent: #d9622b;
+  --kid: #d9622b;
+  --dad: #2b5d7e;
+  --font-title: 'ZCOOL KuaiLe', cursive, sans-serif;
+  --font-story: 'Ma Shan Zheng', cursive, serif;
+  --font-secondary: 'Noto Serif SC', serif;
+}
+
+/* ---------- Reset ---------- */
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  background-color: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-title);
+}
+
+/* ---------- Dot Grid ---------- */
+.dot-grid {
+  --dot-size: 1px;
+  --dot-spacing: 22px;
+  --dot-color: rgba(31, 28, 24, 0.08);
+  background-image: radial-gradient(circle, var(--dot-color) var(--dot-size), transparent var(--dot-size));
+  background-size: var(--dot-spacing) var(--dot-spacing);
+}
+
+/* ---------- Paper Noise (feTurbulence) ---------- */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.06;
+  filter: url(#paper-noise);
+  background: var(--paper);
+}
+
+/* ---------- Root Container ---------- */
+.hb-root {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  max-width: 760px;
+  margin: 0 auto;
+  font-family: var(--font-title);
+}
+
+/* ---------- Header ---------- */
+.hb-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 20px 10px;
+}
+
+.hb-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.hb-logo svg {
+  flex-shrink: 0;
+}
+
+.hb-title {
+  font-size: 30px;
+  line-height: 1;
+  letter-spacing: 2px;
+}
+
+.hb-sub {
+  font-family: var(--font-secondary);
+  font-size: 12px;
+  opacity: 0.6;
+  margin-top: 4px;
+  letter-spacing: 1px;
+}
+
+.hb-head-btns {
+  display: flex;
+  gap: 8px;
+}
+
+.hb-ghost {
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 2px solid var(--ink);
+  border-radius: 40px;
+  padding: 7px 14px;
+  font-size: 14px;
+  color: var(--ink);
+  cursor: pointer;
+  transition: 0.15s;
+}
+
+.hb-ghost:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+/* ---------- Main Stage ---------- */
+.hb-stage {
+  flex: 1;
+  padding: 6px 20px 12px;
+}
+
+/* ---------- Story Card Board ---------- */
+.hb-board {
+  position: relative;
+  background: var(--paper-card);
+  border: 2.5px solid var(--ink);
+  border-radius: 8px;
+  padding: 26px 22px 17px;
+  box-shadow: 6px 7px 0 rgba(31, 28, 24, 0.85);
+}
+
+.hb-tape {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-2deg);
+  width: 120px;
+  height: 24px;
+  background: rgba(217, 98, 43, 0.28);
+  border: 1px dashed rgba(31, 28, 24, 0.4);
+  border-radius: 2px;
+}
+
+/* ---------- SVG Scene Canvas ---------- */
+.hb-draw svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  max-height: 46vh;
+}
+
+/* ---------- Draw Animation (stroke-dasharray self-drawing) ---------- */
+.hb-draw svg path,
+.hb-draw svg line,
+.hb-draw svg polyline,
+.hb-draw svg circle,
+.hb-draw svg ellipse,
+.hb-draw svg rect {
+  stroke-dasharray: 700;
+  stroke-dashoffset: 700;
+  animation: hbDraw 1.5s ease forwards;
+}
+
+.hb-draw svg *:nth-child(2)  { animation-delay: 0.15s; }
+.hb-draw svg *:nth-child(3)  { animation-delay: 0.3s; }
+.hb-draw svg *:nth-child(4)  { animation-delay: 0.45s; }
+.hb-draw svg *:nth-child(n+5) { animation-delay: 0.6s; }
+
+@keyframes hbDraw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* ---------- Narration ---------- */
+.hb-narration {
+  font-family: var(--font-story);
+  font-size: 23px;
+  line-height: 1.5;
+  margin-top: 10px;
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+}
+
+.hb-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  margin-top: 9px;
+  flex: 0 0 auto;
+  background: var(--dad);
+}
+
+/* ---------- Page Number ---------- */
+.hb-page {
+  position: absolute;
+  bottom: 8px;
+  right: 14px;
+  font-family: var(--font-secondary);
+  font-size: 12px;
+  opacity: 0.5;
+}
+
+/* ---------- Filmstrip ---------- */
+.hb-film {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 14px 2px 4px;
+}
+
+.hb-frame {
+  position: relative;
+  flex: 0 0 86px;
+  height: 66px;
+  background: var(--paper-card);
+  border: 2px solid rgba(31, 28, 24, 0.35);
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 4px;
+  transition: 0.15s;
+}
+
+.hb-frame.on {
+  border-color: var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+  transform: translateY(-2px);
+}
+
+.hb-frame-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.hb-frame-svg svg {
+  width: 100%;
+  height: 100%;
+}
+
+.hb-frame-no {
+  position: absolute;
+  bottom: 2px;
+  right: 5px;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+/* ---------- Footer ---------- */
+.hb-foot {
+  padding: 10px 20px 22px;
+}
+
+/* ---------- Speaker Toggle ---------- */
+.hb-who {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.hb-chip {
+  font-family: inherit;
+  background: var(--paper-card);
+  border: 2px solid var(--c);
+  color: var(--c);
+  border-radius: 40px;
+  padding: 6px 16px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: 0.15s;
+  --c: var(--dad);
+}
+
+.hb-chip:nth-child(2) {
+  --c: var(--kid);
+}
+
+.hb-chip.on {
+  background: var(--c);
+  color: #fff;
+}
+
+/* ---------- Hint Spark Button ---------- */
+.hb-spark {
+  font-family: inherit;
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 2px dashed var(--ink);
+  border-radius: 40px;
+  padding: 6px 14px;
+  font-size: 14px;
+  color: var(--ink);
+  cursor: pointer;
+  transition: 0.15s;
+}
+
+.hb-spark:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+/* ---------- Input Bar ---------- */
+.hb-inputbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--paper-card);
+  border: 2.5px solid var(--ink);
+  border-radius: 50px;
+  padding: 6px 6px 6px 8px;
+  box-shadow: 4px 5px 0 rgba(31, 28, 24, 0.85);
+}
+
+.hb-mic {
+  flex: 0 0 auto;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 2px solid var(--ink);
+  background: none;
+  color: var(--ink);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: 0.15s;
+}
+
+.hb-mic.live {
+  background: var(--accent);
+  color: var(--paper);
+  border-color: var(--accent);
+  animation: hbMicPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes hbMicPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(217, 98, 43, 0.45);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(217, 98, 43, 0);
+    transform: scale(1.06);
+  }
+}
+
+.hb-input {
+  flex: 1;
+  border: none;
+  background: none;
+  outline: none;
+  font-family: var(--font-secondary);
+  font-size: 17px;
+  color: var(--ink);
+  min-width: 0;
+}
+
+.hb-input::placeholder {
+  color: rgba(31, 28, 24, 0.4);
+}
+
+.hb-send {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--ink);
+  color: var(--paper);
+  border: none;
+  border-radius: 40px;
+  padding: 11px 20px;
+  font-family: inherit;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.15s;
+}
+
+.hb-send:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* ---------- Error ---------- */
+.hb-err {
+  font-family: var(--font-secondary);
+  color: var(--kid);
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+/* ---------- Loading Jitter ---------- */
+@keyframes hbJitter1 {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(2px); }
+  75% { transform: translateX(-1.5px); }
+}
+@keyframes hbJitter2 {
+  0%, 100% { transform: translateX(0); }
+  30% { transform: translateX(-2px); }
+  70% { transform: translateX(1.5px); }
+}
+@keyframes hbJitter3 {
+  0%, 100% { transform: translateX(0); }
+  40% { transform: translateX(1.5px); }
+  80% { transform: translateX(-2px); }
+}
+.hb-jit1 {
+  animation: hbJitter1 0.3s ease-in-out infinite;
+}
+.hb-jit2 {
+  animation: hbJitter2 0.35s ease-in-out infinite;
+  animation-delay: 0.08s;
+}
+.hb-jit3 {
+  animation: hbJitter3 0.4s ease-in-out infinite;
+  animation-delay: 0.04s;
+}
+
+/* ---------- Playback Modal ---------- */
+.hb-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(31, 28, 24, 0.92);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 20px;
+}
+
+.hb-close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  background: none;
+  border: 2px solid var(--paper);
+  color: var(--paper);
+  border-radius: 50%;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.hb-play-board {
+  background: var(--paper-card);
+  border-radius: 10px;
+  padding: 24px;
+  max-width: 560px;
+  width: 100%;
+}
+
+.hb-play-board .hb-draw svg {
+  max-height: 55vh;
+}
+
+.hb-play-text {
+  font-family: var(--font-story);
+  font-size: 26px;
+  text-align: center;
+  margin-top: 14px;
+  color: var(--ink);
+}
+
+.hb-play-ctrl {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  color: var(--paper);
+  font-size: 18px;
+}
+
+.hb-play-ctrl button {
+  background: none;
+  border: 2px solid var(--paper);
+  color: var(--paper);
+  border-radius: 50%;
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.hb-play-ctrl button:disabled {
+  opacity: 0.3;
+}
+
+/* ---------- Settings Panel ---------- */
+.hb-settings-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(31, 28, 24, 0.3);
+  backdrop-filter: blur(2px);
+}
+
+.hb-settings-drawer {
+  position: fixed;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 400px;
+  background: var(--paper);
+  border-left: 2px solid rgba(31, 28, 24, 0.2);
+  box-shadow: -4px 0 12px rgba(31, 28, 24, 0.1);
+  overflow-y: auto;
+}
+
+.hb-settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 20px;
+  border-bottom: 2px solid rgba(31, 28, 24, 0.1);
+}
+
+.hb-settings-header span {
+  font-family: var(--font-title);
+  font-size: 22px;
+  letter-spacing: 1px;
+}
+
+.hb-settings-header button {
+  background: none;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  color: var(--ink);
+}
+
+.hb-settings-body {
+  padding: 20px;
+}
+
+.hb-settings-body > * + * {
+  margin-top: 18px;
+}
+
+.hb-settings-label {
+  display: block;
+  color: var(--ink-soft);
+  font-family: var(--font-story);
+  font-size: 16px;
+  margin-bottom: 6px;
+}
+
+.hb-settings-select {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 2px solid rgba(31, 28, 24, 0.2);
+  background: var(--paper-card);
+  font-family: var(--font-secondary);
+  font-size: 14px;
+  color: var(--ink);
+  outline: none;
+}
+
+.hb-settings-select:focus {
+  border-color: var(--ink);
+}
+
+.hb-settings-textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 2px solid rgba(31, 28, 24, 0.2);
+  background: var(--paper-card);
+  font-family: var(--font-secondary);
+  font-size: 14px;
+  color: var(--ink);
+  resize: vertical;
+  min-height: 120px;
+  outline: none;
+}
+
+.hb-settings-textarea:focus {
+  border-color: var(--ink);
+}
+
+.hb-settings-input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 2px solid rgba(31, 28, 24, 0.2);
+  background: var(--paper-card);
+  font-family: var(--font-secondary);
+  font-size: 14px;
+  color: var(--ink);
+  outline: none;
+}
+
+.hb-settings-input:focus {
+  border-color: var(--ink);
+}
+
+.hb-settings-hint {
+  color: var(--ink-soft);
+  font-family: var(--font-secondary);
+  font-size: 12px;
+  margin-bottom: 6px;
+  opacity: 0.7;
+}
+
+.hb-settings-footer {
+  display: flex;
+  gap: 10px;
+  padding: 16px 20px;
+  border-top: 2px solid rgba(31, 28, 24, 0.1);
+}
+
+.hb-settings-footer button:first-child {
+  font-family: var(--font-title);
+  background: none;
+  border: 2px solid var(--ink);
+  border-radius: 40px;
+  padding: 8px 20px;
+  font-size: 14px;
+  color: var(--ink);
+  cursor: pointer;
+  transition: 0.15s;
+}
+
+.hb-settings-footer button:first-child:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.hb-settings-footer button:last-child {
+  font-family: var(--font-title);
+  flex: 1;
+  background: var(--ink);
+  color: var(--paper);
+  border: none;
+  border-radius: 40px;
+  padding: 8px 20px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.15s;
+}
+
+/* ---------- Mobile ≤520px ---------- */
+@media (max-width: 520px) {
+  .hb-title {
+    font-size: 24px;
+  }
+
+  .hb-narration {
+    font-size: 20px;
+  }
+
+  .hb-send span {
+    display: none;
+  }
+
+  .hb-head {
+    padding: 14px 16px 8px;
+  }
+
+  .hb-stage {
+    padding: 6px 16px 10px;
+  }
+
+  .hb-board {
+    padding: 24px 16px 13px;
+  }
+
+  .hb-foot {
+    padding: 10px 16px 18px;
+  }
+
+  .hb-ghost {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  .hb-modal {
+    padding: 14px;
+    gap: 16px;
+  }
+
+  .hb-play-board {
+    padding: 18px;
+  }
+
+  .hb-play-text {
+    font-size: 22px;
+  }
+
+  .hb-close {
+    top: 10px;
+    right: 10px;
+    width: 38px;
+    height: 38px;
+  }
+
+  .hb-settings-drawer {
+    width: 100%;
+  }
+}

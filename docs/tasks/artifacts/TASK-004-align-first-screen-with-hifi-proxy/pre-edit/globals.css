@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;700&display=swap');
+
+:root {
+  --paper: #f1ebdb;
+  --paper-card: #fdfaf0;
+  --ink: #211e18;
+  --ink-soft: rgba(33, 30, 24, 0.55);
+  --accent: #d9622b;
+  --kid: #d9622b;
+  --dad: #2b5d7e;
+  --font-title: 'ZCOOL KuaiLe', cursive, sans-serif;
+  --font-story: 'Ma Shan Zheng', cursive, serif;
+  --font-secondary: 'Noto Serif SC', serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  background-color: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-secondary);
+}
+
+.dot-grid {
+  --dot-size: 2px;
+  --dot-spacing: 22px;
+  --dot-color: rgba(33, 30, 24, 0.06);
+  background-image: radial-gradient(circle, var(--dot-color) var(--dot-size), transparent var(--dot-size));
+  background-size: var(--dot-spacing) var(--dot-spacing);
+}

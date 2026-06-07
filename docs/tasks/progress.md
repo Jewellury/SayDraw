@@ -1,0 +1,38 @@
+# Task Progress Board
+
+> Lightweight kanban. Status updates only — long-form plans live in `plan/`.
+
+## Task Index
+
+| Task | Title | Status | Active | Plan | Execution Log | Audit Report | Next Action |
+|------|-------|--------|--------|------|---------------|--------------|-------------|
+| TASK-000 | protect-source-documents | done | — | [plan/TASK-000-protect-source-documents.md](plan/TASK-000-protect-source-documents.md) | — | — | — |
+| TASK-001 | soft-reboot-skeleton | done | — | [plan/TASK-001-soft-reboot-skeleton.md](plan/TASK-001-soft-reboot-skeleton.md) | [execution-log/TASK-001-soft-reboot-skeleton.md](execution-log/TASK-001-soft-reboot-skeleton.md) | [audit-report/TASK-001-soft-reboot-skeleton.md](audit-report/TASK-001-soft-reboot-skeleton.md) | — |
+| TASK-002 | remove-stale-code-archives | done | — | [plan/TASK-002-remove-stale-code-archives.md](plan/TASK-002-remove-stale-code-archives.md) | [execution-log/TASK-002-remove-stale-code-archives.md](execution-log/TASK-002-remove-stale-code-archives.md) | [audit-report/TASK-002-remove-stale-code-archives.md](audit-report/TASK-002-remove-stale-code-archives.md) | — |
+| TASK-003 | fix-build-lint-config | done | — | [plan/TASK-003-fix-build-lint-config.md](plan/TASK-003-fix-build-lint-config.md) | [execution-log/TASK-003-fix-build-lint-config.md](execution-log/TASK-003-fix-build-lint-config.md) | [audit-report/TASK-003-fix-build-lint-config.md](audit-report/TASK-003-fix-build-lint-config.md) | — |
+| TASK-004 | align-first-screen-with-hifi-proxy | done | — | [plan/TASK-004-align-first-screen-with-hifi-proxy.md](plan/TASK-004-align-first-screen-with-hifi-proxy.md) | [execution-log/TASK-004-align-first-screen-with-hifi-proxy.md](execution-log/TASK-004-align-first-screen-with-hifi-proxy.md) | [audit-report/TASK-004-align-first-screen-with-hifi-proxy.md](audit-report/TASK-004-align-first-screen-with-hifi-proxy.md) | — |
+| TASK-005 | screenshot-evidence-convention | done | — | [plan/TASK-005-screenshot-evidence-convention.md](plan/TASK-005-screenshot-evidence-convention.md) | [execution-log/TASK-005-screenshot-evidence-convention.md](execution-log/TASK-005-screenshot-evidence-convention.md) | [audit-report/TASK-005-screenshot-evidence-convention.md](audit-report/TASK-005-screenshot-evidence-convention.md) | — |
+| TASK-006 | match-huahuaben-screenshot-first-screen | done | — | [plan/TASK-006-match-huahuaben-screenshot-first-screen.md](plan/TASK-006-match-huahuaben-screenshot-first-screen.md) | [execution-log/TASK-006-match-huahuaben-screenshot-first-screen.md](execution-log/TASK-006-match-huahuaben-screenshot-first-screen.md) | [audit-report/TASK-006-match-huahuaben-screenshot-first-screen.md](audit-report/TASK-006-match-huahuaben-screenshot-first-screen.md) | — |
+| TASK-007 | text-input-core-loop | done | — | [plan/TASK-007-text-input-core-loop.md](plan/TASK-007-text-input-core-loop.md) | [execution-log/TASK-007-text-input-core-loop.md](execution-log/TASK-007-text-input-core-loop.md) | [audit-report/TASK-007-text-input-core-loop.md](audit-report/TASK-007-text-input-core-loop.md) | — |
+| TASK-008 | playback-theater | done | — | [plan/TASK-008-playback-theater.md](plan/TASK-008-playback-theater.md) | [execution-log/TASK-008-playback-theater.md](execution-log/TASK-008-playback-theater.md) | [audit-report/TASK-008-playback-theater.md](audit-report/TASK-008-playback-theater.md) | — |
+| TASK-009 | voice-input | done | — | [plan/TASK-009-voice-input.md](plan/TASK-009-voice-input.md) | [execution-log/TASK-009-voice-input.md](execution-log/TASK-009-voice-input.md) | [audit-report/TASK-009-voice-input.md](audit-report/TASK-009-voice-input.md) | — |
+| TASK-010 | deepseek-real-integration | done | — | [plan/TASK-010-deepseek-real-integration.md](plan/TASK-010-deepseek-real-integration.md) | [execution-log/TASK-010-deepseek-real-integration.md](execution-log/TASK-010-deepseek-real-integration.md) | [audit-report/TASK-010-deepseek-real-integration.md](audit-report/TASK-010-deepseek-real-integration.md) | — |
+| TASK-011 | settings-panel | done | — | [plan/TASK-011-settings-panel.md](plan/TASK-011-settings-panel.md) | [execution-log/TASK-011-settings-panel.md](execution-log/TASK-011-settings-panel.md) | [audit-report/TASK-011-settings-panel.md](audit-report/TASK-011-settings-panel.md) | Superseded by TASK-012 (settings panel restructured) |
+| TASK-012 | dual-model-pipeline | done | — | [plan/TASK-012-dual-model-pipelineV2.MD](plan/TASK-012-dual-model-pipelineV2.MD) | [execution-log/TASK-012-dual-model-pipeline.md](execution-log/TASK-012-dual-model-pipeline.md) | [audit-report/TASK-012-dual-model-pipeline.md](audit-report/TASK-012-dual-model-pipeline.md) | — |
+| TASK-013 | voice-record-on-release | done | — | [plan/TASK-013-voice-record-on-release.md](plan/TASK-013-voice-record-on-release.md) | [execution-log/TASK-013-voice-record-on-release.md](execution-log/TASK-013-voice-record-on-release.md) | [audit-report/TASK-013-voice-record-on-release.md](audit-report/TASK-013-voice-record-on-release.md) | — |
+| TASK-014 | iconize-buttons | done | — | [plan/TASK-014-iconize-buttons.md](plan/TASK-014-iconize-buttons.md) | [execution-log/TASK-014-iconize-buttons.md](execution-log/TASK-014-iconize-buttons.md) | [audit-report/TASK-014-iconize-buttons.md](audit-report/TASK-014-iconize-buttons.md) | — |
+| TASK-012B | single-model-fallback | done | — | [plan/TASK-012B-single-model-fallback.md](plan/TASK-012B-single-model-fallback.md) | [execution-log/TASK-012B-single-model-fallback.md](execution-log/TASK-012B-single-model-fallback.md) | [audit-report/TASK-012B-single-model-fallback.md](audit-report/TASK-012B-single-model-fallback.md) | — |
+| TASK-015 | i18n-zh-en | done | — | [plan/TASK-015-i18n-zh-en.md](plan/TASK-015-i18n-zh-en.md) | [execution-log/TASK-015-i18n-zh-en.md](execution-log/TASK-015-i18n-zh-en.md) | [audit-report/TASK-015-i18n-zh-en.md](audit-report/TASK-015-i18n-zh-en.md) | — |
+| TASK-014B | icon-redraw-sketchbook | done | — | [plan/TASK-014B-icon-redraw.md](plan/TASK-014B-icon-redraw.md) | [execution-log/TASK-014B-icon-redraw.md](execution-log/TASK-014B-icon-redraw.md) | [audit-report/TASK-014B-icon-redraw.md](audit-report/TASK-014B-icon-redraw.md) | — |
+| TASK-014C | icon-final-external-svg | done | — | [plan/TASK-014C-icon-final.md](plan/TASK-014C-icon-final.md) | [execution-log/TASK-014C-icon-final.md](execution-log/TASK-014C-icon-final.md) | [audit-report/TASK-014C-icon-final.md](audit-report/TASK-014C-icon-final.md) | — |
+
+## Legend
+
+| Status | Meaning |
+|--------|---------|
+| planned | Plan file created, awaiting approval |
+| approved | Active spec points here, ready for execute |
+| in_progress | execute-agent working |
+| audit | audit-agent reviewing |
+| blocked | Cannot proceed |
+| done | Passed audit, cleared |
