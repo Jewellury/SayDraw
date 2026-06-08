@@ -30,3 +30,12 @@ export interface GenerateResponse {
 export interface GenerateError {
   error: string;
 }
+
+export interface HintRequest {
+  storySoFar: string;
+  lang: 'zh' | 'en';
+}
+
+export interface HintResponse {
+  hint: string;
+}

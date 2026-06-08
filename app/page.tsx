@@ -117,6 +117,7 @@ const STRINGS = {
     settingsTextPromptPlaceholder: '例：旁白要活泼一点，多用拟声词……',
     dadApiLabel: '爸爸',
     kidApiLabel: '宝宝',
+    hintLoading: '想一下……',
   },
   en: {
     appTitle: 'HuaHuaBen',
@@ -149,6 +150,7 @@ const STRINGS = {
     settingsTextPromptPlaceholder: 'e.g. narration should be lively, use more onomatopoeia…',
     dadApiLabel: 'Dad',
     kidApiLabel: 'Kid',
+    hintLoading: 'Thinking…',
   },
 };
 
@@ -242,6 +244,8 @@ export default function Page() {
   const [playIdx, setPlayIdx] = useState(0);
   const [listening, setListening] = useState(false);
   const [lang, setLang] = useState<'zh' | 'en'>('zh');
+  const [hintText, setHintText] = useState('');
+  const [hintLoading, setHintLoading] = useState(false);
 
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [settingsTextPrompt, setSettingsTextPrompt] = useState(() => initTextPrompt());
@@ -722,7 +726,28 @@ export default function Page() {
                 justifyContent: 'center',
                 lineHeight: 0,
               } as React.CSSProperties}
-              onClick={() => {}}
+              onClick={async () => {
+                if (hintLoading) return;
+                setHintLoading(true);
+                setHintText('');
+                try {
+                  const res = await fetch('/api/story/hint', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ storySoFar: storyText(), lang }),
+                  });
+                  if (!res.ok) throw new Error('Hint API error');
+                  const data = await res.json();
+                  setHintText(data.hint || '');
+                  track(EVENTS.STORY_HINT_REQUESTED, {});
+                } catch (e) {
+                  setHintText('');
+                  console.error('[hint]', e);
+                } finally {
+                  setHintLoading(false);
+                }
+              }}
+              disabled={hintLoading}
               aria-label={STRINGS[lang].nextHintAria}
               title={STRINGS[lang].nextHintAria}
             >
@@ -838,6 +863,21 @@ export default function Page() {
               )}
             </button>
           </div>
+
+          {(hintText || hintLoading) && (
+            <div
+              style={{
+                textAlign: 'center',
+                fontSize: '0.9rem',
+                color: 'var(--muted, #6b6560)',
+                padding: '8px 16px',
+                fontStyle: hintLoading ? 'italic' : 'normal',
+                animation: hintLoading ? 'none' : 'hb-fade-in 0.4s ease-out',
+              }}
+            >
+              {hintLoading ? STRINGS[lang].hintLoading : hintText}
+            </div>
+          )}
         </footer>
       </div>
 

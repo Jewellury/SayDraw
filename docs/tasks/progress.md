@@ -25,6 +25,8 @@
 | TASK-015 | i18n-zh-en | done | — | [plan/TASK-015-i18n-zh-en.md](plan/TASK-015-i18n-zh-en.md) | [execution-log/TASK-015-i18n-zh-en.md](execution-log/TASK-015-i18n-zh-en.md) | [audit-report/TASK-015-i18n-zh-en.md](audit-report/TASK-015-i18n-zh-en.md) | — |
 | TASK-014B | icon-redraw-sketchbook | done | — | [plan/TASK-014B-icon-redraw.md](plan/TASK-014B-icon-redraw.md) | [execution-log/TASK-014B-icon-redraw.md](execution-log/TASK-014B-icon-redraw.md) | [audit-report/TASK-014B-icon-redraw.md](audit-report/TASK-014B-icon-redraw.md) | — |
 | TASK-014C | icon-final-external-svg | done | — | [plan/TASK-014C-icon-final.md](plan/TASK-014C-icon-final.md) | [execution-log/TASK-014C-icon-final.md](execution-log/TASK-014C-icon-final.md) | [audit-report/TASK-014C-icon-final.md](audit-report/TASK-014C-icon-final.md) | — |
+| TASK-016 | novus-event-payload-types | done | — | [plan/TASK-016-novus-event-payload-types.md](plan/TASK-016-novus-event-payload-types.md) | [execution-log/TASK-016-novus-event-payload-types.md](execution-log/TASK-016-novus-event-payload-types.md) | [audit-report/TASK-016-novus-event-payload-types.md](audit-report/TASK-016-novus-event-payload-types.md) | — |
+| TASK-016A | hint-feature | done | — | [plan/TASK-016A-hint-feature.md](plan/TASK-016A-hint-feature.md) | [execution-log/TASK-016A-hint-feature.md](execution-log/TASK-016A-hint-feature.md) | [audit-report/TASK-016A-hint-feature.md](audit-report/TASK-016A-hint-feature.md) | — |
 
 ## Legend
 

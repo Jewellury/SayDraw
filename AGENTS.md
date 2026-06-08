@@ -26,6 +26,15 @@ Built for **World Product Day "Everyone Ships Now" Hackathon**, deadline **2026-
 - **Storage:** `localStorage` only for MVP
 - **Voice:** Web Speech API (`SpeechRecognition` + `SpeechSynthesis`)
 
+## Dev Server - Critical Rule
+
+- **Port:** Always **3001**. Never 3000 or any other port.
+- **Start method:** `start powershell -NoExit -Command "npm run dev -- -p 3001"` from project root.
+- **Never** use `npm run dev` directly through the Bash tool — the tool timeout kills the server silently.
+- **Never** use `.\start-dev.cmd` from bash (the `start` command behaves differently and won't launch the window).
+- Full runbook: `docs/reference/dev-server-runbook.md`.
+- When browser shows "connection refused", the dev server is not running. Don't investigate code, config, or API keys before verifying `netstat -ano | findstr :3001`.
+
 ## DeepSeek API Key - Critical Rule
 
 - `DEEPSEEK_API_KEY` must only be read on the server side (Route Handlers / Vercel Functions).

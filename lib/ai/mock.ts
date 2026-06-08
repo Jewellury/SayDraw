@@ -106,3 +106,26 @@ export function getMockText(index: number): {
     storySummary: scene.storySummary,
   };
 }
+
+let mockHintCounter = 0;
+
+const MOCK_HINTS_ZH = [
+  '小恐龙接下来会遇到谁呢？',
+  '要不要去花园里看看有什么？',
+  '他们可以一起做什么游戏呢？',
+  '小恐龙现在心里在想什么呢？',
+  '要不要让一个新朋友加入故事？',
+];
+
+const MOCK_HINTS_EN = [
+  'What will the little dinosaur do next?',
+  'How about exploring the garden?',
+  'What game could they play together?',
+  'What is the little dinosaur thinking right now?',
+  'Maybe a new friend could join the story?',
+];
+
+export function getMockHint(lang: 'zh' | 'en'): string {
+  const pool = lang === 'zh' ? MOCK_HINTS_ZH : MOCK_HINTS_EN;
+  return pool[mockHintCounter++ % pool.length];
+}

@@ -1,6 +1,6 @@
-import { EventName } from './events';
+import { EventName, EventPayloadMap } from './events';
 
-export function track(eventName: EventName, payload?: Record<string, unknown>): void {
+export function track<K extends EventName>(eventName: K, payload: EventPayloadMap[K]): void {
   if (typeof window === 'undefined') return;
 
   if (process.env.NODE_ENV === 'development') {

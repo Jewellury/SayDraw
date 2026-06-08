@@ -31,7 +31,17 @@ Two reliable ways to start:
 | Method | Command | Notes |
 |--------|---------|-------|
 | **Manual PowerShell window** | `npm run dev -- -p 3001` | Most predictable. Keep the window open. |
-| **Script launcher** | `.\start-dev.cmd` (double-click or run from project root) | Opens a new persistent PowerShell window for you. Same effect. |
+| **Script launcher** | `.\start-dev.cmd` (double-click or run from project root in cmd/PS) | Opens a new persistent PowerShell window. **Does NOT work from bash shell** — `start` command is Windows-cmd-only; use this from File Explorer or cmd.exe directly. |
+
+### For AI / Tool Usage
+
+When an AI agent or tool must start the dev server programmatically, use:
+
+```
+start powershell -NoExit -Command "npm run dev -- -p 3001"
+```
+
+This is the one reliable method from bash-on-Windows. Do NOT use `npm run dev` directly, do NOT use `.\start-dev.cmd` from bash.
 
 The server does **not** auto-open a browser. After starting, manually navigate to `http://localhost:3001`.
 
@@ -100,6 +110,10 @@ npm run dev -- -p 3001
 ### Real-world example (2026-06-07)
 
 A tool/agent killed the main `node.exe` on port 3001 but the webpack watcher kept the port alive. The subsequent `npm run dev` failed with `EADDRINUSE`. After the tool session timed out and killed the whole tree by accident, the user restarted from their own PowerShell window — and it worked on the first try. The lesson: **start the server from your own terminal, close the old terminal to kill the server.**
+
+### Real-world example (2026-06-08) — 3 failed restart attempts
+
+When asked to restart the dev server, the AI agent ran `npm.cmd run dev` without `-p 3001` → started on wrong port 3000. Then tried `cmd.exe /c start-dev.cmd` from bash → `start` command doesn't work from bash, no window opened. Third attempt used `start powershell -NoExit -Command "npm run dev -- -p 3001"` → success. The fix: AGENTS.md now explicitly states the correct command and forbids the wrong ones.
 
 ## Common Startup Warnings (Non-Blocking)
 
