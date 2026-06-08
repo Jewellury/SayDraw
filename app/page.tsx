@@ -255,6 +255,10 @@ export default function Page() {
   const recRef = useRef<SpeechRecognition | null>(null);
 
   useEffect(() => {
+    pendo.initialize({ visitor: { id: '' } });
+  }, []);
+
+  useEffect(() => {
     const saved = loadStory();
     setScenes(saved.scenes);
     setCurrent(saved.current);
