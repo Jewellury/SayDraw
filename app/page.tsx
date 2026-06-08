@@ -53,6 +53,7 @@ declare global {
   interface Window {
     SpeechRecognition?: SpeechRecognitionConstructor;
     webkitSpeechRecognition?: SpeechRecognitionConstructor;
+    pendo?: { trackAgent: (eventType: string, metadata: object) => void };
   }
 }
 
@@ -253,6 +254,7 @@ export default function Page() {
 
   const filmRef = useRef<HTMLDivElement>(null);
   const recRef = useRef<SpeechRecognition | null>(null);
+  const pendoConversationIdRef = useRef<string>(crypto.randomUUID());
 
   useEffect(() => {
     const saved = loadStory();
@@ -322,6 +324,17 @@ export default function Page() {
       frameCount: scenes.length,
     });
 
+    const promptMessageId = crypto.randomUUID();
+    if (typeof window !== 'undefined' && window.pendo) {
+      window.pendo.trackAgent("prompt", {
+        agentId: "LQcS0rF1LtwX7K8ZCAzbdv3KB4Q",
+        conversationId: pendoConversationIdRef.current,
+        messageId: promptMessageId,
+        content: myLine,
+        suggestedPrompt: false,
+      });
+    }
+
     try {
       const res = await fetch('/api/story/generate', {
         method: 'POST',
@@ -342,6 +355,16 @@ export default function Page() {
       }
 
       const { narration, svg, followUpQuestion, storySummary }: GenerateResponse = data;
+
+      if (typeof window !== 'undefined' && window.pendo) {
+        window.pendo.trackAgent("agent_response", {
+          agentId: "LQcS0rF1LtwX7K8ZCAzbdv3KB4Q",
+          conversationId: pendoConversationIdRef.current,
+          messageId: crypto.randomUUID(),
+          content: narration || myLine,
+          modelUsed: "deepseek-v4-flash",
+        });
+      }
 
       const newScene: Scene = {
         id: Date.now(),
