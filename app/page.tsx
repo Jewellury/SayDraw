@@ -246,6 +246,7 @@ export default function Page() {
   const [lang, setLang] = useState<'zh' | 'en'>('zh');
   const [hintText, setHintText] = useState('');
   const [hintLoading, setHintLoading] = useState(false);
+  const [lastInputVoice, setLastInputVoice] = useState(false);
 
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [settingsTextPrompt, setSettingsTextPrompt] = useState(() => initTextPrompt());
@@ -285,6 +286,11 @@ export default function Page() {
     if (listening) stopVoice();
     recRef.current = null;
     const next = lang === 'zh' ? 'en' : 'zh';
+    track(EVENTS.LANGUAGE_SWITCHED, {
+      fromLanguage: lang,
+      toLanguage: next,
+      frameCount: scenes.length,
+    });
     setLang(next);
     if (typeof window !== 'undefined') {
       try { localStorage.setItem('saydraw_lang', next); } catch { /* best effort */ }
@@ -321,9 +327,15 @@ export default function Page() {
     const mySpeaker = speaker;
     setInput('');
 
+    const inputMethod = lastInputVoice ? 'voice' : 'text';
+    setLastInputVoice(false);
+
     track(EVENTS.STORY_TURN_SUBMITTED, {
       speaker: mySpeaker,
       frameCount: scenes.length,
+      inputMethod,
+      language: lang,
+      inputLength: myLine.length,
     });
 
     try {
@@ -365,6 +377,10 @@ export default function Page() {
       track(EVENTS.STORY_FRAME_GENERATED, {
         speaker: mySpeaker,
         frameCount: scenes.length + 1,
+        hasNarration: !!narration,
+        hasSvg: !!svg,
+        hasStorySummary: !!storySummary,
+        language: lang,
       });
 
       setTimeout(() => {
@@ -375,7 +391,9 @@ export default function Page() {
       setInput(myLine);
       track(EVENTS.STORY_GENERATION_FAILED, {
         speaker: mySpeaker,
-        error: e instanceof Error ? e.message : 'Unknown',
+        error_msg: e instanceof Error ? e.message : 'Unknown',
+        frameCount: scenes.length,
+        language: lang,
       });
     } finally {
       setLoading(false);
@@ -388,7 +406,7 @@ export default function Page() {
       setError(STRINGS[lang].voiceUnsupportedMsg);
       return;
     }
-    track(EVENTS.VOICE_INPUT_STARTED, { speaker });
+    track(EVENTS.VOICE_INPUT_STARTED, { speaker, language: lang });
 
     let committed = false;
 
@@ -408,10 +426,14 @@ export default function Page() {
       if (!t) return;
       committed = true;
       setInput(t);
-      track(EVENTS.VOICE_INPUT_COMPLETED, { speaker });
+      setLastInputVoice(true);
+      track(EVENTS.VOICE_INPUT_COMPLETED, { speaker, language: lang, transcriptLength: t.length });
     };
     rec.onend = () => setListening(false);
-    rec.onerror = () => setListening(false);
+    rec.onerror = () => {
+      track(EVENTS.VOICE_INPUT_FAILED, { speaker, language: lang });
+      setListening(false);
+    };
 
     recRef.current = rec;
     setListening(true);
@@ -432,12 +454,16 @@ export default function Page() {
 
   function switchToFrame(index: number) {
     setCurrent(index);
-    track(EVENTS.STORY_FRAME_REVISITED, { frameIndex: index });
+    track(EVENTS.STORY_FRAME_REVISITED, {
+      frameIndex: index,
+      totalFrames: scenes.length,
+      frameSpeaker: scenes[index].speaker,
+    });
   }
 
   function startPlayback() {
     if (playing || scenes.length === 0) return;
-    track(EVENTS.STORY_PLAY_STARTED, { frameCount: scenes.length });
+    track(EVENTS.STORY_PLAY_STARTED, { frameCount: scenes.length, language: lang });
     setPlayIdx(0);
     setPlaying(true);
   }
@@ -448,13 +474,19 @@ export default function Page() {
 
   useEffect(() => {
     if (!playing) return;
-    if (playIdx >= scenes.length - 1) return;
+    if (playIdx >= scenes.length - 1) {
+      track(EVENTS.STORY_PLAYBACK_COMPLETED, {
+        frameCount: scenes.length,
+        language: lang,
+      });
+      return;
+    }
     const t = setTimeout(
       () => setPlayIdx((i) => Math.min(i + 1, scenes.length - 1)),
       3800,
     );
     return () => clearTimeout(t);
-  }, [playing, playIdx, scenes.length]);
+  }, [playing, playIdx, scenes.length, lang]);
 
   useEffect(() => {
     if (!settingsOpen) return;
@@ -559,7 +591,12 @@ export default function Page() {
             <button
               className="hb-ghost"
               onClick={() => {
-                setScenes([SEED_SCENE]);
+                track(EVENTS.STORY_RESET, {
+                  framesDiscarded: scenes.length - 1,
+                  language: lang,
+                  lastSpeaker: speaker,
+                });
+                setScenes([getSeedScene(lang)]);
                 setCurrent(0);
                 setSpeaker('kid');
                 setError('');
@@ -742,11 +779,22 @@ export default function Page() {
                   });
                   if (!res.ok) throw new Error('Hint API error');
                   const data = await res.json();
-                  setHintText(data.hint || '');
-                  track(EVENTS.STORY_HINT_REQUESTED, {});
+                  const hint = data.hint || '';
+                  setHintText(hint);
+                  track(EVENTS.STORY_HINT_REQUESTED, {
+                    language: lang,
+                    frameCount: scenes.length,
+                    speaker,
+                    hintLength: hint.length,
+                  });
                 } catch (e) {
                   setHintText('');
                   console.error('[hint]', e);
+                  track(EVENTS.STORY_HINT_FAILED, {
+                    error_msg: e instanceof Error ? e.message : 'Unknown',
+                    language: lang,
+                    frameCount: scenes.length,
+                  });
                 } finally {
                   setHintLoading(false);
                 }
@@ -985,6 +1033,11 @@ export default function Page() {
                   onChange={(e) => {
                     setSettingsTextPrompt(e.target.value);
                     saveSettings(e.target.value, settingsDrawingPrompt);
+                    track(EVENTS.SETTINGS_CUSTOM_PROMPT_SAVED, {
+                      promptLength: e.target.value.length,
+                      isReset: e.target.value.length === 0,
+                      language: lang,
+                    });
                   }}
                   placeholder={STRINGS[lang].settingsTextPromptPlaceholder}
                 />
