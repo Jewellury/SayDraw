@@ -54,16 +54,16 @@ SayDraw 现在做两件 AI 的事：**画图** 和 **听懂孩子说话**。
 
 这部分用一个**"三选一自动判断"**的逻辑（TASK-017 里叫"env-preference resolver"，环境变量偏好解析器）。规则很简单：
 
-1. 如果设了 `DOUBAO_API_KEY` → **走豆包 pro**（主力）
-2. 如果没设豆包、但设了 `DEEPSEEK_API_KEY` → **走 DeepSeek**（备胎）
+1. 如果设了 `DOUBAO_API_KEY` → **走豆包 pro**（主力，但 2026-06-20 bakeoff 实测豆包全系太慢已注掉）
+2. 如果没设豆包、但设了 `DEEPSEEK_API_KEY` → **走 DeepSeek chat（V3）**（当前实际使用）
 3. 两个都没设 → **用 mock 假数据**（让孩子也能玩，只是画面是预设的）
 
-这个设计的好处是：**万一豆包 pro 出问题（比如机房断网、key 过期），只要把豆包的 key 删掉，系统就自动退回 DeepSeek，不用改代码、不用重新部署**。这是为了"演示日不能翻车"做的保险。
+这个设计的好处是：**万一豆包 pro 出问题（比如机房断网、key 过期），只要把豆包的 key 删掉，系统就自动退回 DeepSeek，不用改代码、不用重新部署**。2026-06-20 bakeoff 实测就是靠这个设计保住画图功能：发现豆包全系超时后，只注掉一个环境变量就切回了 DeepSeek。
 
 ### 用到什么服务
 
-- **豆包 pro（火山方舟 Volcano Ark）** —— 主力画图模型。走 OpenAI 兼容接口（意思是接口格式跟 OpenAI 一样，所以代码改动很小）。
-- **DeepSeek（deepseek-v4-flash）** —— 备胎。比豆包 pro 小、画 SVG 几何不太准（人物比例歪、缺胳膊少腿），但能用。
+- **DeepSeek chat（V3）** —— **当前实际使用的画图模型**。2026-06-20 bakeoff 实测 0.1-0.5 秒，SVG 元素 11-16 个，无彩色。速度快、成本低。
+- **豆包 pro / lite（火山方舟）** —— 预留但已注掉。实测 PRO（视觉端点）31-45s 超时、LITE 25s 超时，均远超 Vercel 30s 上限。等火山出更快的纯文本型号后可重测——改一个环境变量就行，不用改代码。
 - **mock 假数据** —— 两个 key 都没配时的兜底，让孩子也能体验完整流程。
 
 ---
@@ -144,21 +144,18 @@ SayDraw 的语音有三层"安全网"（TASK-018 里叫"three-tier fallback chai
 三个环境变量，全部**只在服务端读取**，永远不要前缀 `NEXT_PUBLIC_`：
 
 ```env
-# 画图主力 —— 豆包 pro via 火山方舟
-# 必填（用豆包时）
-DOUBAO_API_KEY=XX
-# 可选，有默认值
-DOUBAO_BASE_URL=https://ark.cn-beijing.volces.com/api/v3
-# 必填（用豆包时）—— 这是火山控制台里的"接入点 ID"（endpoint id），形如 ep-xxxxxxxxxxxx-xxxxx
-# 没有"模型名"这种东西，火山用接入点 ID 定位模型
-DOUBAO_MODEL=ep-your-endpoint-id
-
-# 画图备胎 —— DeepSeek（可以不配，配了就走 DeepSeek 路径）
+# 画图备胎 —— DeepSeek（当前实际使用的画图模型）
+# 2026-06-20 bakeoff 实测 deepseek-chat 0.1-0.5s 响应，豆包全系 25-45s 超时
 DEEPSEEK_API_KEY=XX
 DEEPSEEK_BASE_URL=https://api.deepseek.com
+
+# 画图主力预留 —— 豆包 via 火山方舟（已注掉，后续火山出更快模型时可解注重测）
+# DOUBAO_API_KEY=XX
+# DOUBAO_BASE_URL=https://ark.cn-beijing.volces.com/api/v3
+# DOUBAO_MODEL=ep-your-endpoint-id
 ```
 
-**判断规则：** 设了 `DOUBAO_API_KEY` 走豆包（但 2026-06-20 实测豆包全系太慢，豆包 key 已永久注掉，当前实际上走 DeepSeek）；没设豆包、设了 `DEEPSEEK_API_KEY` 走 DeepSeek；都没设用 mock 假数据。
+**判断规则：** 设了 `DOUBAO_API_KEY` 走豆包；没设豆包、设了 `DEEPSEEK_API_KEY` 走 DeepSeek；都没设用 mock 假数据。2026-06-20 bakeoff 后豆包 key 已永久注掉，当前实际上走 DeepSeek chat（V3）。
 
 ### 语音需要（TASK-018）
 
