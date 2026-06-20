@@ -1,0 +1,48 @@
+# TASK-018 Phase 2 Codec Harness
+# Verifies lib/voice/volcanoProtocol.ts against the Volcano spec.
+# No network calls. Pure-byte assertions.
+
+## 1. encodeFullClientRequest
+length: 183 bytes
+header bytes 0..3: 0x11 0x10 0x11 0x00 0x00 0x00 0x00 0xaf 0x1f 0x8b 0x08 0x00 0x00 
+byte 0 = 0x11 (expect 0x11) PASS
+byte 1 = 0x10 (expect 0x10) PASS
+byte 2 = 0x11 (expect 0x11 = JSON+Gzip) PASS
+byte 3 = 0x00 (expect 0x00) PASS
+payload size (bytes 4..7 BE uint32) = 175
+actual payload bytes = 175
+payload size matches: PASS
+payload gunzip + JSON.parse roundtrip: PASS
+payload[0..1] magic = 0x1f 0x8b (expect 0x1f 0x8b) PASS
+
+## 2. encodeAudioFrame (middle chunk, isLast=false)
+byte 0 = 0x11 (expect 0x11) PASS
+byte 1 = 0x20 (expect 0x20 = audio more) PASS
+byte 2 = 0x01 (expect 0x01 = raw + Gzip) PASS
+byte 3 = 0x00 (expect 0x00) PASS
+payload size: 39, actual: 39, match: PASS
+pcm roundtrip via gunzip: PASS
+
+## 3. encodeAudioFrame (last chunk, isLast=true)
+byte 1 = 0x22 (expect 0x22 = audio last / end-of-stream) PASS
+byte 2 = 0x01 (expect 0x01) PASS
+empty PCM payload size = 20 (expect > 0 because gzip header overhead)
+
+## 4. decodeServerMessage (error frame: code 45000002 empty audio)
+type = error (expect 'error') PASS
+code = 45000002 (expect 45000002) PASS
+message = "empty audio" (expect "empty audio") PASS
+
+## 5. decodeServerMessage (response frame, JSON+Gzip, sequence=1)
+type = response (expect 'response') PASS
+sequence = 1 (expect 1) PASS
+payload.result.text = "你好世界" (expect "你好世界") PASS
+
+## 6. decodeServerMessage (response frame, raw JSON, sequence=2)
+type = response (expect 'response') PASS
+sequence = 2 (expect 2) PASS
+payload.result.text = "hello" (expect "hello") PASS
+
+## Summary: ALL PASS
+
+Captured: 2026-06-20T03:58:22.670Z

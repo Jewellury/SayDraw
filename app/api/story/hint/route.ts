@@ -1,7 +1,7 @@
 export const maxDuration = 30;
 
 import { NextRequest, NextResponse } from 'next/server';
-import { generateStoryFrame, NoApiKeyError } from '@/lib/ai/deepseek';
+import { generateStoryFrame, NoApiKeyError } from '@/lib/ai/provider';
 import { HINT_SYS, HINT_SYS_EN } from '@/lib/ai/prompts';
 import { getMockHint } from '@/lib/ai/mock';
 import type { HintRequest, HintResponse, GenerateError } from '@/lib/story/types';

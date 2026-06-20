@@ -1,0 +1,15 @@
+model=ep-20260619155735-lx4dr
+base_url=https://ark.cn-beijing.volces.com/api/v3
+[small-256-t60] OK in 40494ms finish=length prompt_tokens=723 completion_tokens=1968 content_len=538
+  preview: {
+  "narration": "一只小恐龙在花园里散步",
+  "followUpQuestion": "小恐龙接下来看到啥啦？",
+  "storySummary": "我们的故事主角是一只圆滚滚的可爱小恐龙。它现在正慢悠悠地在开满小花的花园里散步，接下来还会遇到很多有趣的事物。",
+  "svg": "<svg viewBox=\"0 0 400 300\" xmlns=\"http://
+[mid-800-t60] OK in 44512ms finish=stop prompt_tokens=723 completion_tokens=2200 content_len=1420
+  preview: {
+  "narration": "一只小恐龙在花园里散步",
+  "followUpQuestion": "接下来小恐龙会遇到谁呀？",
+  "storySummary": "我们的新故事主角是一只憨厚可爱的小恐龙。它现在正悠闲地在开满小花的花园里散步。",
+  "svg": "<svg viewBox=\"0 0 400 300\" xmlns=\"http://www.w3.org/2000
+[full-2000-t90] ERR after 90020ms: This operation was aborted

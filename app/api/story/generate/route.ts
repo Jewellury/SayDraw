@@ -1,7 +1,7 @@
 export const maxDuration = 30;
 
 import { NextRequest, NextResponse } from 'next/server';
-import { generateStoryFrame, NoApiKeyError } from '@/lib/ai/deepseek';
+import { generateStoryFrame, NoApiKeyError } from '@/lib/ai/provider';
 import { extractSvg } from '@/lib/ai/svg-model';
 import { COMBINED_SYS } from '@/lib/ai/prompts';
 import { getMockText } from '@/lib/ai/mock';
@@ -79,7 +79,9 @@ export async function POST(req: NextRequest) {
     let svg: string;
 
     try {
+      const tModelStart = Date.now();
       const raw = await generateStoryFrame(systemPrompt, userMessage);
+      console.log(`[story/generate] model call: ${Date.now() - tModelStart}ms`);
       const parsed = parseCombinedResponse(raw, newLine);
       narration = parsed.narration;
       followUpQuestion = parsed.followUpQuestion;
@@ -99,7 +101,12 @@ export async function POST(req: NextRequest) {
       svg = FALLBACK_SVG;
     }
 
-    svg = sanitizeSvg(svg);
+    try {
+      svg = sanitizeSvg(svg);
+    } catch (sanitizeError) {
+      console.error('[api/story/generate] sanitizeSvg threw:', (sanitizeError as Error).message);
+      svg = FALLBACK_SVG;
+    }
 
     const res: GenerateResponse = {
       narration,

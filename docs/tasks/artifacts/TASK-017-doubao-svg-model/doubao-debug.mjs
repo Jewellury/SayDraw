@@ -1,0 +1,65 @@
+// Doubao debug: probe whether Doubao responds at all with small max_tokens.
+// Artifact only — NOT shipped.
+import { readFile } from 'node:fs/promises';
+
+async function loadCombinedSys() {
+  const src = await readFile('./lib/ai/prompts.ts', 'utf8');
+  const stripped = src
+    .replace(/export\s+const\s+COMBINED_SYS\s*=/, 'const COMBINED_SYS =')
+    .replace(/export\s+const\s+INK\s*=/, 'const INK =')
+    .replace(/export\s+const\s+/g, 'const ');
+  const dataUrl = 'data:text/javascript;base64,' + Buffer.from(allStripped(src) + '\nexport { COMBINED_SYS };\n').toString('base64');
+  return (await import(dataUrl)).COMBINED_SYS;
+}
+function allStripped(src) { return src.replace(/export\s+const\s+/g, 'const '); }
+
+async function probe(label, { maxTokens, timeoutMs }) {
+  const apiKey = process.env.DOUBAO_API_KEY;
+  const baseUrl = process.env.DOUBAO_BASE_URL || 'https://ark.cn-beijing.volces.com/api/v3';
+  const model = process.env.DOUBAO_MODEL;
+  const sys = await loadCombinedSys();
+  const userMsg = '目前的故事：\n\n最新这一句是宝宝说的：一只小恐龙在花园里散步';
+  const abort = new AbortController();
+  const timer = setTimeout(() => abort.abort(), timeoutMs);
+  const t0 = performance.now();
+  try {
+    const res = await fetch(`${baseUrl}/chat/completions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+      body: JSON.stringify({
+        model,
+        messages: [
+          { role: 'system', content: sys },
+          { role: 'user', content: userMsg },
+        ],
+        max_tokens: maxTokens,
+        temperature: 0.75,
+        response_format: { type: 'json_object' },
+      }),
+      signal: abort.signal,
+    });
+    const dt = performance.now() - t0;
+    if (!res.ok) {
+      const t = await res.text().catch(() => '');
+      console.log(`[${label}] HTTP ${res.status} in ${dt.toFixed(0)}ms: ${t.slice(0, 250)}`);
+      return;
+    }
+    const data = await res.json();
+    const content = data.choices?.[0]?.message?.content;
+    const finish = data.choices?.[0]?.finish_reason;
+    console.log(`[${label}] OK in ${dt.toFixed(0)}ms finish=${finish} prompt_tokens=${data.usage?.prompt_tokens} completion_tokens=${data.usage?.completion_tokens} content_len=${content?.length ?? 0}`);
+    if (content) console.log(`  preview: ${content.slice(0, 200)}`);
+  } catch (e) {
+    const dt = performance.now() - t0;
+    console.log(`[${label}] ERR after ${dt.toFixed(0)}ms: ${e.message}`);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+// Try several configurations to isolate the bottleneck
+console.log('model=' + (process.env.DOUBAO_MODEL || '(unset)'));
+console.log('base_url=' + (process.env.DOUBAO_BASE_URL || 'https://ark.cn-beijing.volces.com/api/v3'));
+await probe('small-256-t60', { maxTokens: 256, timeoutMs: 60_000 });
+await probe('mid-800-t60',   { maxTokens: 800, timeoutMs: 60_000 });
+await probe('full-2000-t90', { maxTokens: 2000, timeoutMs: 90_000 });

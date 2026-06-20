@@ -1,0 +1,4 @@
+Doubao latency characterization with new prompt (few-shot + 8-14 rule):
+(timeout=60s to capture full behavior)
+
+[max_completion_tokens=1500] 33668ms finish=length prompt_tokens=2499 completion_tokens=1500 svgComplete=false

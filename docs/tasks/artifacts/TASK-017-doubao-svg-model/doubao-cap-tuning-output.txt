@@ -1,0 +1,22 @@
+Tuning max_completion_tokens (each call is sequential)...
+cap= 1000 ->   22283ms finish=length tokens=1000 svgComplete=false
+   tail: ...
+cap= 1200 ->   26165ms finish=length tokens=1200 svgComplete=false
+   tail: ...
+cap= 1400 ->   30720ms finish=length tokens=1400 svgComplete=false
+   tail: ...
+cap= 1600 ->   35835ms finish=length tokens=1600 svgComplete=false
+   tail: ... "narration": "一只小恐龙在花园里散步",
+  "followUpQuestion": "接下来它遇到谁了呀？",
+  "storySummary": "故事的主角是一只憨厚可爱的小恐龙。它此刻正在开满小花的花园里慢悠悠散步。新的故事情节等待小朋友继续补充。",
+  "svg": "<
+cap= 2000 ->   42397ms finish=length tokens=2000 svgComplete=false
+   tail: ...-width=\"1.5\"/><circle cx=\"330\" cy=\"225\" r=\"14\" stroke=\"#211e18\" fill=\"none\" stroke-width=\"1.5\"/><line x1=\"330\" y1=\"239\" x2=\"330\" y
+
+=== Summary ===
+cap     latency   tokens  finish   svgComplete
+ 1000   22283ms  1000  length  false
+ 1200   26165ms  1200  length  false
+ 1400   30720ms  1400  length  false
+ 1600   35835ms  1600  length  false
+ 2000   42397ms  2000  length  false

@@ -1,0 +1,24 @@
+# TASK-018 Phase 3/5 Capability Probe
+# Date: 2026-06-20T05:01:16.355Z
+# Port: 3999
+
+=== Scenario: NO creds (probe must return available=false) ===
+GET /api/voice/capability -> status=200 body={"available":false}
+  expected available=false: PASS
+
+=== Scenario: VOLC_API_KEY=test (new console, fake key — probe only) ===
+GET /api/voice/capability -> status=200 body={"available":true}
+  expected available=true: PASS
+
+=== Scenario: VOLC_APP_KEY+VOLC_ACCESS_KEY=test (old console, fake — probe only) ===
+GET /api/voice/capability -> status=200 body={"available":true}
+  expected available=true: PASS
+
+=== Scenario: REAL user VOLC_API_KEY + end-to-end transcribe of 1s silent PCM ===
+  (expect either { text: "" } (empty) or { error: "voice-error-..." } — both prove the
+   full WS path, protocol, and error roundtrip work.)
+  capability -> {"available":true}
+  POST /api/voice/transcribe (1s silent PCM) -> status=200 body={"text":""}
+  PASS (response shape is well-formed and contains no VOLC_*)
+
+# Summary: ALL PASS

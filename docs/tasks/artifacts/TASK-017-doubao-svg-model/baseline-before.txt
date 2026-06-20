@@ -1,0 +1,16 @@
+
+=== Doubao === (system prompt: 1171 chars, 3 runs)
+  run 1: FAIL after 30022ms — This operation was aborted
+  run 2: FAIL after 30007ms — This operation was aborted
+  run 3: FAIL after 30016ms — This operation was aborted
+  (no successful runs)
+
+=== DeepSeek === (system prompt: 1171 chars, 3 runs)
+  run 1: 14375ms  (prompt_tokens=658, completion_tokens=1523)
+  run 2: 7453ms  (prompt_tokens=658, completion_tokens=1003)
+  run 3: 8532ms  (prompt_tokens=658, completion_tokens=1032)
+  -> min=7453ms  median=8532ms  mean=10120ms  max=14375ms
+  -> prompt_tokens median=658  completion_tokens median=1032 (min=1003, max=1523)
+
+=== Summary ===
+DeepSeek: median=8532ms mean=10120ms prompt_chars=1171 prompt_tokens≈658 completion_tokens≈1032

@@ -5,56 +5,11 @@ import { loadStory, saveStory } from '@/lib/story/storage';
 import { track } from '@/lib/analytics/track';
 import { EVENTS } from '@/lib/analytics/events';
 import type { Scene, StoryState, GenerateResponse } from '@/lib/story/types';
+import VoiceRecorder from '@/components/VoiceRecorder';
 
 /* ------------------------------------------------------------------ */
-/*  Inline Web Speech API types (browser-only, no lib/ or types/ dir)   */
+/*  Localised strings surfaced to <VoiceRecorder> as child-safe copy.   */
 /* ------------------------------------------------------------------ */
-
-interface SpeechRecognitionEvent extends Event {
-  readonly resultIndex: number;
-  readonly results: SpeechRecognitionResultList;
-}
-
-interface SpeechRecognitionResultList {
-  readonly length: number;
-  item(index: number): SpeechRecognitionResult;
-  [index: number]: SpeechRecognitionResult;
-}
-
-interface SpeechRecognitionResult {
-  readonly isFinal: boolean;
-  readonly length: number;
-  item(index: number): SpeechRecognitionAlternative;
-  [index: number]: SpeechRecognitionAlternative;
-}
-
-interface SpeechRecognitionAlternative {
-  readonly transcript: string;
-  readonly confidence: number;
-}
-
-interface SpeechRecognition extends EventTarget {
-  lang: string;
-  interimResults: boolean;
-  continuous: boolean;
-  onresult: ((event: SpeechRecognitionEvent) => void) | null;
-  onend: (() => void) | null;
-  onerror: (() => void) | null;
-  start(): void;
-  stop(): void;
-  abort(): void;
-}
-
-interface SpeechRecognitionConstructor {
-  new (): SpeechRecognition;
-}
-
-declare global {
-  interface Window {
-    SpeechRecognition?: SpeechRecognitionConstructor;
-    webkitSpeechRecognition?: SpeechRecognitionConstructor;
-  }
-}
 
 const DAD_COLOR = '#2b5d7e';
 const KID_COLOR = '#d9622b';
@@ -252,7 +207,7 @@ export default function Page() {
   const [settingsDrawingPrompt, setSettingsDrawingPrompt] = useState(() => initDrawingPrompt());
 
   const filmRef = useRef<HTMLDivElement>(null);
-  const recRef = useRef<SpeechRecognition | null>(null);
+  const voiceRef = useRef<{ stop: () => void } | null>(null);
 
   useEffect(() => {
     pendo.initialize({ visitor: { id: '' } });
@@ -282,8 +237,9 @@ export default function Page() {
   }, [lang]);
 
   function toggleLang() {
-    if (listening) stopVoice();
-    recRef.current = null;
+    // Abort any active capture so the next press honours the new lang.
+    // (Preserves TASK-013 "recRef = null" teardown behaviour.)
+    if (listening) voiceRef.current?.stop();
     const next = lang === 'zh' ? 'en' : 'zh';
     setLang(next);
     if (typeof window !== 'undefined') {
@@ -380,48 +336,6 @@ export default function Page() {
     } finally {
       setLoading(false);
     }
-  }
-
-  function startVoice() {
-    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SR) {
-      setError(STRINGS[lang].voiceUnsupportedMsg);
-      return;
-    }
-    track(EVENTS.VOICE_INPUT_STARTED, { speaker });
-
-    let committed = false;
-
-    const rec = new SR();
-    rec.lang = lang === 'zh' ? 'zh-CN' : 'en-US';
-    rec.interimResults = false;
-    rec.continuous = false;
-
-    rec.onresult = (e: SpeechRecognitionEvent) => {
-      if (committed) return;
-      let finalText = '';
-      for (let i = e.resultIndex; i < e.results.length; i++) {
-        const r = e.results[i];
-        if (r.isFinal) finalText += r[0] ? r[0].transcript : '';
-      }
-      const t = finalText.trim();
-      if (!t) return;
-      committed = true;
-      setInput(t);
-      track(EVENTS.VOICE_INPUT_COMPLETED, { speaker });
-    };
-    rec.onend = () => setListening(false);
-    rec.onerror = () => setListening(false);
-
-    recRef.current = rec;
-    setListening(true);
-    setError('');
-    rec.start();
-  }
-
-  function stopVoice() {
-    recRef.current?.stop();
-    setListening(false);
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
@@ -654,7 +568,7 @@ export default function Page() {
                 justifyContent: 'center',
                 lineHeight: 0,
               } as React.CSSProperties}
-              onClick={() => setSpeaker('dad')}
+              onClick={() => { setSpeaker('dad'); setError(''); }}
               aria-label={STRINGS[lang].dadSwitchLabel}
               title={STRINGS[lang].dadSwitchLabel}
             >
@@ -692,7 +606,7 @@ export default function Page() {
                 justifyContent: 'center',
                 lineHeight: 0,
               } as React.CSSProperties}
-              onClick={() => setSpeaker('kid')}
+              onClick={() => { setSpeaker('kid'); setError(''); }}
               aria-label={STRINGS[lang].kidSwitchLabel}
               title={STRINGS[lang].kidSwitchLabel}
             >
@@ -774,32 +688,48 @@ export default function Page() {
 
           {/* Input Pill */}
           <div className="hb-inputbar">
-            <button
-              className={'hb-mic' + (listening ? ' live' : '')}
-              aria-label={listening ? STRINGS[lang].micLabelListening : STRINGS[lang].micLabelIdle}
-              onMouseDown={(e) => { e.preventDefault(); startVoice(); }}
-              onMouseUp={() => { if (listening) stopVoice(); }}
-              onMouseLeave={() => { if (listening) stopVoice(); }}
-              onTouchStart={(e) => { e.preventDefault(); startVoice(); }}
-              onTouchEnd={(e) => { e.preventDefault(); if (listening) stopVoice(); }}
-              onTouchCancel={() => { if (listening) stopVoice(); }}
-            >
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
-                <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-                <line x1="12" y1="19" x2="12" y2="23" />
-                <line x1="8" y1="23" x2="16" y2="23" />
-              </svg>
-            </button>
+            <VoiceRecorder
+              ref={voiceRef}
+              lang={lang}
+              speaker={speaker}
+              onTranscript={(t) => setInput(t)}
+              onListeningChange={setListening}
+              onError={(m) => setError(m)}
+              onClearError={() => setError('')}
+                      strings={{
+                          voiceUnsupported: STRINGS[lang].voiceUnsupportedMsg,
+                          retry: STRINGS[lang].errorMsg,
+                        }}
+                        key={speaker}
+              renderButton={(handlers) => (
+                <button
+                  className={'hb-mic' + (listening ? ' live' : '')}
+                  aria-label={listening ? STRINGS[lang].micLabelListening : STRINGS[lang].micLabelIdle}
+                  onMouseDown={handlers.onMouseDown}
+                  onMouseUp={handlers.onMouseUp}
+                  onMouseLeave={handlers.onMouseLeave}
+                  onTouchStart={handlers.onTouchStart}
+                  onTouchEnd={handlers.onTouchEnd}
+                  onTouchCancel={handlers.onTouchCancel}
+                >
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                    <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                    <line x1="12" y1="19" x2="12" y2="23" />
+                    <line x1="8" y1="23" x2="16" y2="23" />
+                  </svg>
+                </button>
+              )}
+            />
             <input
               className="hb-input"
               placeholder={

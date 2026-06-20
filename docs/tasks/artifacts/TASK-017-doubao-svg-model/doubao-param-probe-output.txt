@@ -1,0 +1,4 @@
+Probing param-name variants for output-token cap...
+[max_tokens-300] OK in 53048ms finish=length prompt_tokens=723 completion_tokens=2398
+[max_output_tokens-300] ERR after 60017ms: This operation was aborted
+[max_completion_tokens-300] OK in 8868ms finish=length prompt_tokens=723 completion_tokens=300

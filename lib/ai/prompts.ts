@@ -20,7 +20,7 @@ export const COMBINED_SYS =
   '- 所有元素：stroke="' + INK + '"，fill="none"，stroke-linecap="round"，stroke-linejoin="round"\n' +
   '- 主角轮廓 stroke-width="3"，细节 stroke-width="2"，背景元素 stroke-width="1.5"\n' +
   '- 禁止：任何 fill 颜色（除 fill="none"）、文字/text 元素、style 属性里的颜色\n' +
-  '- 元素数量：12~22 个 SVG 元素\n' +
+  '- 元素数量：8~14 个 SVG 元素（精简优先，不要堆砌细节）\n' +
   '- 画面必须为纯黑白线稿，无彩色。\n\n' +
   '构图要求：\n' +
   '- 先画背景（地面线、场景道具1~2样）\n' +
@@ -34,6 +34,48 @@ export const COMBINED_SYS =
   '- 陨石：带尾巴的不规则椭圆或三角，从画面顶部斜向下飞过。\n' +
   '- 晕倒：角色身体倾斜或倒下，眼睛画成 X 或螺旋线，旁边可加小星星表示晕眩。\n' +
   '- 蝴蝶：左右对称双翅，触角，停在花朵或空中飞舞。\n\n' +
+  '示例 SVG（风格参考，不要原样复制）：\n' +
+  '示例1（恐龙）：\n' +
+  '<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">' +
+  '<line x1="20" y1="270" x2="380" y2="270" stroke="#211e18" stroke-width="1.5" stroke-linecap="round" fill="none"/>' +
+  '<path d="M120 270 L130 200 Q140 160 200 160 Q260 160 280 200 L290 270" stroke="#211e18" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>' +
+  '<circle cx="278" cy="148" r="34" stroke="#211e18" stroke-width="3" fill="none"/>' +
+  '<circle cx="290" cy="142" r="3" stroke="#211e18" stroke-width="2" fill="none"/>' +
+  '<path d="M284 158 Q294 164 300 158" stroke="#211e18" stroke-width="2" stroke-linecap="round" fill="none"/>' +
+  '<line x1="160" y1="220" x2="140" y2="260" stroke="#211e18" stroke-width="3" stroke-linecap="round" fill="none"/>' +
+  '<line x1="250" y1="220" x2="270" y2="260" stroke="#211e18" stroke-width="3" stroke-linecap="round" fill="none"/>' +
+  '<path d="M155 200 Q150 175 175 170 Q200 175 195 200" stroke="#211e18" stroke-width="2" stroke-linecap="round" fill="none"/>' +
+  '<path d="M205 200 Q200 175 225 170 Q250 175 245 200" stroke="#211e18" stroke-width="2" stroke-linecap="round" fill="none"/>' +
+  '<path d="M130 200 Q120 170 140 160 Q160 165 150 195" stroke="#211e18" stroke-width="2" stroke-linecap="round" fill="none"/>' +
+  '</svg>\n' +
+  '示例2（月亮与陨石）：\n' +
+  '<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">' +
+  '<line x1="20" y1="270" x2="380" y2="270" stroke="#211e18" stroke-width="1.5" stroke-linecap="round" fill="none"/>' +
+  '<circle cx="320" cy="70" r="42" stroke="#211e18" stroke-width="3" fill="none"/>' +
+  '<circle cx="306" cy="58" r="6" stroke="#211e18" stroke-width="2" fill="none"/>' +
+  '<circle cx="332" cy="82" r="8" stroke="#211e18" stroke-width="2" fill="none"/>' +
+  '<circle cx="320" cy="92" r="4" stroke="#211e18" stroke-width="2" fill="none"/>' +
+  '<path d="M40 40 L130 130" stroke="#211e18" stroke-width="2" stroke-linecap="round" fill="none"/>' +
+  '<ellipse cx="130" cy="130" rx="20" ry="14" transform="rotate(45 130 130)" stroke="#211e18" stroke-width="3" fill="none"/>' +
+  '<path d="M80 220 Q120 200 160 230 L170 270 L70 270 Z" stroke="#211e18" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>' +
+  '<circle cx="108" cy="240" r="3" stroke="#211e18" stroke-width="2" fill="none"/>' +
+  '<circle cx="132" cy="248" r="3" stroke="#211e18" stroke-width="2" fill="none"/>' +
+  '<path d="M100 252 Q115 260 130 252" stroke="#211e18" stroke-width="2" stroke-linecap="round" fill="none"/>' +
+  '</svg>\n' +
+  '示例3（蝴蝶与花）：\n' +
+  '<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">' +
+  '<line x1="20" y1="270" x2="380" y2="270" stroke="#211e18" stroke-width="1.5" stroke-linecap="round" fill="none"/>' +
+  '<line x1="200" y1="270" x2="200" y2="180" stroke="#211e18" stroke-width="3" stroke-linecap="round" fill="none"/>' +
+  '<circle cx="200" cy="170" r="22" stroke="#211e18" stroke-width="3" fill="none"/>' +
+  '<circle cx="170" cy="140" r="14" stroke="#211e18" stroke-width="3" fill="none"/>' +
+  '<circle cx="230" cy="140" r="14" stroke="#211e18" stroke-width="3" fill="none"/>' +
+  '<circle cx="158" cy="160" r="10" stroke="#211e18" stroke-width="2" fill="none"/>' +
+  '<circle cx="242" cy="160" r="10" stroke="#211e18" stroke-width="2" fill="none"/>' +
+  '<path d="M192 130 Q190 116 196 110" stroke="#211e18" stroke-width="2" stroke-linecap="round" fill="none"/>' +
+  '<path d="M208 130 Q210 116 204 110" stroke="#211e18" stroke-width="2" stroke-linecap="round" fill="none"/>' +
+  '<path d="M120 250 Q140 220 160 250 Q140 280 120 250" stroke="#211e18" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>' +
+  '<path d="M290 245 Q310 215 330 245 Q310 275 290 245" stroke="#211e18" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>' +
+  '</svg>\n\n' +
   '只输出 JSON，不要任何其他内容。';
 
 // 备用 — 切回双模型时使用
