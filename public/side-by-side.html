@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TASK-019 Side-by-Side: 直接 SVG vs 语义渲染</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #f5f5f5; padding: 20px; }
+    h1 { font-size: 18px; margin-bottom: 12px; color: #211e18; }
+    .controls { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+    .controls input { flex: 1; min-width: 200px; padding: 8px 12px; border: 2px solid #ccc; border-radius: 8px; font-size: 14px; }
+    .controls button { padding: 8px 20px; background: #211e18; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; }
+    .controls button:hover { opacity: 0.85; }
+    .controls button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .panel { background: white; border-radius: 12px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .panel h2 { font-size: 14px; margin-bottom: 8px; color: #666; }
+    .svg-box { width: 100%; aspect-ratio: 4/3; border: 2px dashed #ddd; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #fafafa; }
+    .svg-box svg { max-width: 100%; max-height: 100%; }
+    .loading { color: #999; font-size: 13px; }
+    .info { margin-top: 8px; font-size: 12px; color: #888; }
+    .tag { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 11px; margin-right: 4px; }
+    .tag-v1 { background: #fff3cd; color: #856404; }
+    .tag-v2 { background: #d4edda; color: #155724; }
+    .duration { font-weight: 600; }
+    .narration { margin-top: 8px; font-size: 13px; color: #333; background: #f9f9f9; padding: 8px; border-radius: 6px; }
+    .samples { margin-bottom: 16px; }
+    .samples button { padding: 6px 14px; background: #e8e8e8; border: 1px solid #ccc; border-radius: 6px; cursor: pointer; font-size: 12px; margin-right: 6px; margin-bottom: 4px; }
+    .samples button:hover { background: #ddd; }
+  </style>
+</head>
+<body>
+  <h1>🎨 TASK-019 渲染质量对比</h1>
+  <div class="samples">
+    <span style="font-size:12px;color:#666;margin-right:6px;">快速测试：</span>
+    <button onclick="compare('一只小猫坐在月亮上')">小猫坐在月亮上</button>
+    <button onclick="compare('一只小恐龙坐在石头上')">小恐龙坐在石头上</button>
+    <button onclick="compare('夜空里，小猫坐在弯弯的月亮上面')">小猫坐在弯弯的月亮上面</button>
+  </div>
+  <div class="controls">
+    <input type="text" id="prompt" value="一只小猫坐在月亮上" placeholder="输入测试句子...">
+    <button id="btn" onclick="compare()">🔍 对比渲染</button>
+  </div>
+  <div class="grid">
+    <div class="panel">
+      <h2><span class="tag tag-v1">v1</span> 直接 SVG 路径（DeepSeek 直出）</h2>
+      <div class="svg-box" id="direct-box"><span class="loading">等待请求...</span></div>
+      <div class="info" id="direct-info"></div>
+      <div class="narration" id="direct-narr"></div>
+    </div>
+    <div class="panel">
+      <h2><span class="tag tag-v2">v2</span> 语义锚点渲染（componentLib + Rough.js + 自动布局）</h2>
+      <div class="svg-box" id="semantic-box"><span class="loading">等待请求...</span></div>
+      <div class="info" id="semantic-info"></div>
+      <div class="narration" id="semantic-narr"></div>
+    </div>
+  </div>
+  <div style="margin-top:16px;font-size:11px;color:#999;">
+    ⚠ 需 dev server 运行在 localhost:3001 且有 DEEPSEEK_API_KEY。
+    无 API key 时两端都会退回 fallback SVG。
+  </div>
+
+  <script>
+    const BASE = 'http://localhost:3001';
+
+    async function fetchSvg(endpoint, boxId, infoId, narrId) {
+      const box = document.getElementById(boxId);
+      const info = document.getElementById(infoId);
+      const narr = document.getElementById(narrId);
+      box.innerHTML = '<span class="loading">生成中...</span>';
+      info.textContent = '';
+      narr.textContent = '';
+
+      const start = Date.now();
+      try {
+        const resp = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            storySoFar: '',
+            newLine: document.getElementById('prompt').value,
+            speaker: 'kid'
+          })
+        });
+        const dur = Date.now() - start;
+        const data = await resp.json();
+
+        if (data.svg) {
+          box.innerHTML = data.svg;
+        } else {
+          box.innerHTML = '<span class="loading">无 SVG 返回</span>';
+        }
+        info.innerHTML = `<span class="duration">${dur}ms</span> · status ${resp.status}`;
+        if (data.narration) narr.textContent = '📖 ' + data.narration;
+      } catch (e) {
+        box.innerHTML = `<span class="loading" style="color:#c00;">请求失败: ${e.message}<br>请确认 dev server 在 localhost:3001 运行</span>`;
+        info.textContent = 'error';
+      }
+    }
+
+    async function compare(preset) {
+      if (preset) document.getElementById('prompt').value = preset;
+      const btn = document.getElementById('btn');
+      btn.disabled = true;
+      btn.textContent = '⏳ 对比中...';
+
+      const prompt = document.getElementById('prompt').value;
+      if (!prompt.trim()) return;
+
+      await Promise.all([
+        fetchSvg(`${BASE}/api/story/generate`, 'direct-box', 'direct-info', 'direct-narr'),
+        fetchSvg(`${BASE}/api/story/generate?strategy=semantic`, 'semantic-box', 'semantic-info', 'semantic-narr')
+      ]);
+
+      btn.disabled = false;
+      btn.textContent = '🔍 对比渲染';
+    }
+  </script>
+</body>
+</html>

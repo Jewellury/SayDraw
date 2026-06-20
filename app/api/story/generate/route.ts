@@ -1,11 +1,12 @@
 export const maxDuration = 30;
 
 import { NextRequest, NextResponse } from 'next/server';
-import { generateStoryFrame, NoApiKeyError } from '@/lib/ai/provider';
+import { generateStoryFrame, generateStoryFrameSemantic, NoApiKeyError } from '@/lib/ai/provider';
 import { extractSvg } from '@/lib/ai/svg-model';
-import { COMBINED_SYS } from '@/lib/ai/prompts';
+import { COMBINED_SYS, SEMANTIC_SYS } from '@/lib/ai/prompts';
 import { getMockText } from '@/lib/ai/mock';
 import { sanitizeSvg } from '@/lib/svg/sanitizeSvg';
+import { renderScene } from '@/lib/svg/semanticRenderer';
 import type { GenerateRequest, GenerateResponse, GenerateError } from '@/lib/story/types';
 
 let mockCounter = 0;
@@ -43,6 +44,31 @@ function parseCombinedResponse(raw: string, fallbackNarration: string): {
   }
 }
 
+function parseSemanticResponse(raw: string, fallbackNarration: string): {
+  narration: string;
+  followUpQuestion: string;
+  storySummary: string;
+  components: Array<{ id: string; role: string; drawOrder: number }>;
+} {
+  try {
+    const o = JSON.parse(raw);
+    return {
+      narration: (typeof o.narration === 'string' && o.narration) || fallbackNarration,
+      followUpQuestion: (typeof o.followUpQuestion === 'string' && o.followUpQuestion) || '',
+      storySummary: (typeof o.storySummary === 'string' && o.storySummary) || '',
+      components: Array.isArray(o.components) ? o.components : [],
+    };
+  } catch {
+    console.error('[parseSemantic] JSON parse failed, raw length:', raw.length, raw.slice(0, 200));
+    return {
+      narration: fallbackNarration,
+      followUpQuestion: '',
+      storySummary: '',
+      components: [],
+    };
+  }
+}
+
 function validateSvg(svg: string): string {
   const s = String(svg || '');
   if (!s || !s.includes('<svg') || !s.includes('</svg>')) {
@@ -61,9 +87,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(err, { status: 400 });
     }
 
-    const systemPrompt = textPrompt && textPrompt.trim()
-      ? `${COMBINED_SYS}\n\n${textPrompt.trim()}`
-      : COMBINED_SYS;
+    const isSemantic = req.nextUrl.searchParams.get('strategy') === 'semantic';
+
+    const systemPrompt = isSemantic ? SEMANTIC_SYS : (
+      textPrompt && textPrompt.trim()
+        ? `${COMBINED_SYS}\n\n${textPrompt.trim()}`
+        : COMBINED_SYS
+    );
 
     const userMessage =
       '目前的故事：\n' +
@@ -80,16 +110,32 @@ export async function POST(req: NextRequest) {
 
     try {
       const tModelStart = Date.now();
-      const raw = await generateStoryFrame(systemPrompt, userMessage);
+      const raw = isSemantic
+        ? await generateStoryFrameSemantic(systemPrompt, userMessage)
+        : await generateStoryFrame(systemPrompt, userMessage);
       console.log(`[story/generate] model call: ${Date.now() - tModelStart}ms`);
-      const parsed = parseCombinedResponse(raw, newLine);
-      narration = parsed.narration;
-      followUpQuestion = parsed.followUpQuestion;
-      storySummary = parsed.storySummary;
 
-      const extracted = extractSvg(parsed.svg);
-      svg = validateSvg(extracted);
-      if (!svg) svg = FALLBACK_SVG;
+      if (isSemantic) {
+        const parsed = parseSemanticResponse(raw, newLine);
+        narration = parsed.narration;
+        followUpQuestion = parsed.followUpQuestion;
+        storySummary = parsed.storySummary;
+
+        if (parsed.components.length > 0) {
+          svg = renderScene(parsed.components as Array<{ id: string; role: 'support' | 'character' | 'detail' | 'background'; drawOrder: number }>);
+        } else {
+          svg = FALLBACK_SVG;
+        }
+      } else {
+        const parsed = parseCombinedResponse(raw, newLine);
+        narration = parsed.narration;
+        followUpQuestion = parsed.followUpQuestion;
+        storySummary = parsed.storySummary;
+
+        const extracted = extractSvg(parsed.svg);
+        svg = validateSvg(extracted);
+        if (!svg) svg = FALLBACK_SVG;
+      }
     } catch (textError) {
       if (!(textError instanceof NoApiKeyError)) {
         console.error('[api/story/generate]', (textError as Error).message);

@@ -23,3 +23,13 @@ export async function generateStoryFrame(
   }
   throw new NoApiKeyError();
 }
+
+export async function generateStoryFrameSemantic(
+  systemPrompt: string,
+  userMessage: string
+): Promise<string> {
+  if (!process.env.DEEPSEEK_API_KEY) {
+    throw new NoApiKeyError();
+  }
+  return generateDeepseek(systemPrompt, userMessage);
+}
