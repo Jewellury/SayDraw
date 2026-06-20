@@ -191,9 +191,7 @@ function initDrawingPrompt(): string {
 }
 
 export default function Page() {
-  const [scenes, setScenes] = useState<Scene[]>(() =>
-    resolveInitialLang() === 'en' ? [SEED_SCENE_EN] : [SEED_SCENE]
-  );
+  const [scenes, setScenes] = useState<Scene[]>(() => [SEED_SCENE]);
   const [current, setCurrent] = useState<number>(() => defaultState().current);
   const [speaker, setSpeaker] = useState<'dad' | 'kid'>(() => defaultState().speaker);
   const [input, setInput] = useState('');
@@ -203,7 +201,7 @@ export default function Page() {
   const [playIdx, setPlayIdx] = useState(0);
   const [listening, setListening] = useState(false);
   const [transcribing, setTranscribing] = useState(false);
-  const [lang, setLang] = useState<'zh' | 'en'>(() => resolveInitialLang());
+  const [lang, setLang] = useState<'zh' | 'en'>('zh');
   const [hintText, setHintText] = useState('');
   const [hintLoading, setHintLoading] = useState(false);
 
@@ -236,7 +234,13 @@ export default function Page() {
   }, []);
 
   useEffect(() => {
-    setLang(resolveInitialLang());
+    const initial = resolveInitialLang();
+    setLang(initial);
+    if (initial === 'en') {
+      setScenes((prev) =>
+        prev.length === 1 && prev[0].id === SEED_SCENE.id ? [SEED_SCENE_EN] : prev
+      );
+    }
   }, []);
 
   useEffect(() => {
