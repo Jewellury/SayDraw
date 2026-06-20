@@ -3,7 +3,7 @@ import { NoApiKeyError } from '@/lib/ai/errors';
 export { NoApiKeyError };
 
 const BASE_URL = process.env.DEEPSEEK_BASE_URL || 'https://api.deepseek.com';
-const MODEL = 'deepseek-chat'; // V3 — bakeoff 2026-06-20 实测 0.1-0.5s（含 prompt cache）
+const MODEL = 'deepseek-v4-flash'; // old alias 'deepseek-chat' retiring 2026-07-24 per DeepSeek docs
 const FETCH_TIMEOUT_MS = 30_000;
 
 export async function generateStoryFrame(
