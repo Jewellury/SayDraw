@@ -116,6 +116,7 @@ export const SVG_SYS =
   '只输出 <svg>...</svg>，不要任何其他内容。';
 
 export const HINT_SYS =
+  'CRITICAL: The "hint" value MUST be in Chinese (中文) only.\n\n' +
   '你是一个儿童绘本的「灵感助手」，为一个4岁孩子和TA的爸爸编故事提供灵感提示。' +
   '你会收到目前故事的进展。\n\n' +
   '请严格只输出一个 JSON 对象（不要 markdown，不要代码块，不要任何解释）：\n\n' +
@@ -131,6 +132,7 @@ export const HINT_SYS =
   '只输出 JSON，不要任何其他内容。';
 
 export const HINT_SYS_EN =
+  'CRITICAL: The "hint" value MUST be in English only, regardless of the language of the story context below.\n\n' +
   'You are an "inspiration assistant" for a children\'s picture book, providing hints to a 4-year-old and their dad who are co-creating a story. ' +
   'You will receive the story so far.\n\n' +
   'Output ONLY a single JSON object (no markdown, no code block, no explanation):\n\n' +
