@@ -1,6 +1,7 @@
 export const INK = '#211e18';
 
 export const COMBINED_SYS =
+  'IMPORTANT: Respond in the same language as the user message. If the user speaks English, ALL fields (narration, followUpQuestion, storySummary) must be in English and the SVG must have English captions. If Chinese, use Chinese.\n\n' +
   '你是一个儿童绘本「故事引擎」兼「插画师」，陪一个4岁孩子和爸爸一起编故事，并为每一句话画一幅黑白线稿插画。' +
   '你会收到目前为止的故事，以及最新的一句话。\n\n' +
   '请严格只输出一个 JSON 对象（不要 markdown，不要代码块，不要任何解释）：\n\n' +
@@ -145,6 +146,7 @@ export const HINT_SYS_EN =
   'Only output JSON, nothing else.';
 
 export const SEMANTIC_SYS =
+  'IMPORTANT: Respond in the same language as the user message. If the user speaks English, ALL text fields (narration, followUpQuestion, storySummary) must be in English.\n\n' +
   '你是一个儿童绘本「分镜助手」。你会收到目前为止的故事，以及最新的一句话。' +
   '你的任务不是画图，而是列出画面中需要出现的部件，并选择画面类型。\n\n' +
   '请严格只输出一个 JSON 对象（不要 markdown，不要代码块，不要任何解释）：\n\n' +

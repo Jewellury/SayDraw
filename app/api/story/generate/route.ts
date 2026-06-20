@@ -132,10 +132,29 @@ export async function POST(req: NextRequest) {
         storySummary = parsed.storySummary;
 
         if (parsed.components.length > 0) {
-          svg = renderScene(
-            parsed.components as Array<{ id: string; role: 'support' | 'character' | 'detail' | 'background'; drawOrder: number }>,
-            parsed.sceneType || undefined
-          );
+          // Guard: if the semantic narration doesn't overlap with the user's input,
+          // the LLM hallucinated default components (e.g. "cat on moon" for "eating watermelon").
+          // Fall back to direct SVG instead of showing the wrong scene.
+          const inputKey = newLine.toLowerCase().replace(/[^a-z0-9\u4e00-\u9fff]/g, '');
+          const narrationKey = (parsed.narration || '').toLowerCase().replace(/[^a-z0-9\u4e00-\u9fff]/g, '');
+          const isMismatch = inputKey.length > 2 && !narrationKey.includes(inputKey.slice(0, Math.min(6, inputKey.length)));
+
+          if (isMismatch) {
+            console.log('[story/generate] semantic mismatch, falling back to direct SVG');
+            const fallbackRaw = await generateStoryFrame(COMBINED_SYS, userMessage);
+            const fallbackParsed = parseCombinedResponse(fallbackRaw, newLine);
+            narration = fallbackParsed.narration || narration;
+            followUpQuestion = fallbackParsed.followUpQuestion || followUpQuestion;
+            storySummary = fallbackParsed.storySummary || storySummary;
+            const extracted = extractSvg(fallbackParsed.svg);
+            svg = validateSvg(extracted);
+            if (!svg) svg = FALLBACK_SVG;
+          } else {
+            svg = renderScene(
+              parsed.components as Array<{ id: string; role: 'support' | 'character' | 'detail' | 'background'; drawOrder: number }>,
+              parsed.sceneType || undefined
+            );
+          }
         } else {
           // Semantic LLM returned no components — fall back to direct SVG
           const fallbackRaw = await generateStoryFrame(COMBINED_SYS, userMessage);
