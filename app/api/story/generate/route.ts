@@ -84,6 +84,7 @@ export async function POST(req: NextRequest) {
   try {
     const body: GenerateRequest = await req.json();
     const { storySoFar, newLine, speaker, textPrompt } = body;
+    const lang: 'zh' | 'en' = body.lang === 'en' ? 'en' : 'zh';
 
     if (!newLine || !newLine.trim()) {
       const err: GenerateError = { error: '请说一句话再来画' };
@@ -146,7 +147,7 @@ export async function POST(req: NextRequest) {
       if (!(textError instanceof NoApiKeyError)) {
         console.error('[api/story/generate]', (textError as Error).message);
       }
-      const mock = getMockText(mockCounter++);
+      const mock = getMockText(mockCounter++, lang);
       narration = mock.narration;
       followUpQuestion = mock.followUpQuestion;
       storySummary = mock.storySummary;
@@ -165,6 +166,7 @@ export async function POST(req: NextRequest) {
       svg,
       followUpQuestion: followUpQuestion || undefined,
       storySummary: storySummary || undefined,
+      strategy: isSemantic ? 'semantic' : 'direct',
     };
     return NextResponse.json(res);
   } catch (e) {

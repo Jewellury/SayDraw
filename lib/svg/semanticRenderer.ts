@@ -64,6 +64,7 @@ function buildSvg(
   );
 
   for (const el of sortedStandalone) {
+    if (!el.svg) continue; // unknown component id → skip silently
     parts.push(`<g transform="translate(${el.x}, ${el.y})">${el.svg}</g>`);
   }
 

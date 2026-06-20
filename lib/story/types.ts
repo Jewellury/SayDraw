@@ -18,6 +18,8 @@ export interface GenerateRequest {
   speaker: 'dad' | 'kid';
   textPrompt?: string;
   drawingPrompt?: string;
+  /** UI language — drives localized mock fallback copy. Defaults to 'zh'. */
+  lang?: 'zh' | 'en';
 }
 
 export interface GenerateResponse {
@@ -25,6 +27,9 @@ export interface GenerateResponse {
   svg: string;
   followUpQuestion?: string;
   storySummary?: string;
+  /** Echoes the renderer path the route actually took, so the client can
+   *  attribute analytics without guessing. */
+  strategy?: 'direct' | 'semantic';
 }
 
 export interface GenerateError {

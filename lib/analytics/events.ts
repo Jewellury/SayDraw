@@ -6,6 +6,9 @@ export interface StoryTurnSubmittedPayload {
 export interface StoryFrameGeneratedPayload {
   speaker: 'dad' | 'kid';
   frameCount: number;
+  /** Which renderer path produced this frame. Lets us compare adoption /
+   *  quality of the semantic renderer vs. the direct SVG path. */
+  strategy?: 'direct' | 'semantic';
 }
 
 export type StoryHintRequestedPayload = Record<string, never>;

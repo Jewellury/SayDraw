@@ -102,6 +102,12 @@ export interface VoiceRecorderProps {
   onTranscript: (text: string) => void;
   /** Live "listening" flag. Recorder flips true on press, false on settle. */
   onListeningChange: (listening: boolean) => void;
+  /**
+   * Live "transcribing" flag — true while the released audio is POSTing to
+   * the transcription endpoint (Volcano path only; Web Speech returns inline).
+   * Lets the parent show a "recognizing…" hint during the ~1-2s round-trip.
+   */
+  onTranscribingChange?: (transcribing: boolean) => void;
   /** Surfaces a child-safe UI message (typed tokens or raw string). */
   onError: (message: string) => void;
   /** Clears any prior error message (called at press time). */
@@ -171,7 +177,7 @@ const CAPABILITY_PROBE_TIMEOUT_MS = 2000;
 /* ------------------------------------------------------------------ */
 
 const VoiceRecorder = forwardRef<VoiceRecorderHandle, VoiceRecorderProps>(function VoiceRecorder(props, ref) {
-  const { lang, speaker, onTranscript, onListeningChange, onError, onClearError, strings, renderButton } = props;
+  const { lang, speaker, onTranscript, onListeningChange, onTranscribingChange, onError, onClearError, strings, renderButton } = props;
 
   // --- Cached strategy (set once on mount via capability probe) ---
   const [strategy, setStrategy] = useState<VoiceStrategy>('none');
@@ -417,6 +423,7 @@ const VoiceRecorder = forwardRef<VoiceRecorderHandle, VoiceRecorderProps>(functi
     }
 
     inFlightPostRef.current = true;
+    onTranscribingChange?.(true);
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), 25_000);
     try {
@@ -448,8 +455,9 @@ const VoiceRecorder = forwardRef<VoiceRecorderHandle, VoiceRecorderProps>(functi
     } finally {
       clearTimeout(timer);
       inFlightPostRef.current = false;
+      onTranscribingChange?.(false);
     }
-  }, [onError, onTranscript, setListening, speaker, strings]);
+  }, [onError, onTranscript, onTranscribingChange, setListening, speaker, strings]);
 
   // ----------------------------------------------------------------
   // Public dispatchers (mic button's six handlers)

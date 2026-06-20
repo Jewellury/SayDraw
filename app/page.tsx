@@ -52,6 +52,7 @@ const STRINGS = {
     dadPlaceholder: '爸爸说……',
     kidPlaceholder: '宝宝说……（或者点麦克风）',
     listeningHint: '说吧，松手就出来……',
+    transcribingHint: '识别中……',
     pageCount: (cur: number, total: number) => `第 ${cur} / ${total} 格`,
     playCount: (cur: number, total: number) => `${cur} / ${total}`,
     errorMsg: '画板打了个小盹，再说一次试试',
@@ -85,6 +86,7 @@ const STRINGS = {
     dadPlaceholder: 'Dad says… (or tap the mic)',
     kidPlaceholder: 'Kid says… (or tap the mic)',
     listeningHint: 'Speak, then release',
+    transcribingHint: 'Transcribing…',
     pageCount: (cur: number, total: number) => `Frame ${cur} of ${total}`,
     playCount: (cur: number, total: number) => `${cur} / ${total}`,
     errorMsg: 'The board took a quick nap, try again',
@@ -189,7 +191,9 @@ function initDrawingPrompt(): string {
 }
 
 export default function Page() {
-  const [scenes, setScenes] = useState<Scene[]>(() => defaultState().scenes);
+  const [scenes, setScenes] = useState<Scene[]>(() =>
+    resolveInitialLang() === 'en' ? [SEED_SCENE_EN] : [SEED_SCENE]
+  );
   const [current, setCurrent] = useState<number>(() => defaultState().current);
   const [speaker, setSpeaker] = useState<'dad' | 'kid'>(() => defaultState().speaker);
   const [input, setInput] = useState('');
@@ -198,7 +202,8 @@ export default function Page() {
   const [playing, setPlaying] = useState(false);
   const [playIdx, setPlayIdx] = useState(0);
   const [listening, setListening] = useState(false);
-  const [lang, setLang] = useState<'zh' | 'en'>('zh');
+  const [transcribing, setTranscribing] = useState(false);
+  const [lang, setLang] = useState<'zh' | 'en'>(() => resolveInitialLang());
   const [hintText, setHintText] = useState('');
   const [hintLoading, setHintLoading] = useState(false);
 
@@ -208,6 +213,15 @@ export default function Page() {
 
   const filmRef = useRef<HTMLDivElement>(null);
   const voiceRef = useRef<{ stop: () => void } | null>(null);
+  // Renderer path. `?strategy=semantic` opts a session into the semantic
+  // renderer (TASK-019/020); everything else uses the direct SVG path.
+  const strategyRef = useRef<'direct' | 'semantic'>('direct');
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const p = new URLSearchParams(window.location.search).get('strategy');
+    if (p === 'semantic') strategyRef.current = 'semantic';
+  }, []);
 
   useEffect(() => {
     pendo.initialize({ visitor: { id: '' } });
@@ -221,13 +235,7 @@ export default function Page() {
   }, []);
 
   useEffect(() => {
-    const initial = resolveInitialLang();
-    setLang(initial);
-    if (initial === 'en') {
-      setScenes((prev) =>
-        prev.length === 1 && prev[0].id === SEED_SCENE.id ? [getSeedScene('en')] : prev
-      );
-    }
+    setLang(resolveInitialLang());
   }, []);
 
   useEffect(() => {
@@ -283,13 +291,18 @@ export default function Page() {
     });
 
     try {
-      const res = await fetch('/api/story/generate', {
+      const url =
+        strategyRef.current === 'semantic'
+          ? '/api/story/generate?strategy=semantic'
+          : '/api/story/generate';
+      const res = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           storySoFar: storyText(),
           newLine: myLine,
           speaker: mySpeaker,
+          lang,
           textPrompt: settingsTextPrompt || undefined,
           drawingPrompt: settingsDrawingPrompt || undefined,
         }),
@@ -301,7 +314,7 @@ export default function Page() {
         throw new Error(data.error || 'API error');
       }
 
-      const { narration, svg, followUpQuestion, storySummary }: GenerateResponse = data;
+      const { narration, svg, followUpQuestion, storySummary, strategy }: GenerateResponse = data;
 
       const newScene: Scene = {
         id: Date.now(),
@@ -321,6 +334,7 @@ export default function Page() {
       track(EVENTS.STORY_FRAME_GENERATED, {
         speaker: mySpeaker,
         frameCount: scenes.length + 1,
+        strategy: strategy || strategyRef.current,
       });
 
       setTimeout(() => {
@@ -440,7 +454,7 @@ export default function Page() {
                 <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
               </svg>
             </button>
-            <button className="hb-ghost" onClick={() => setSettingsOpen(true)} aria-label={STRINGS[lang].settingsTitle}>
+            <button className="hb-ghost" style={{ display: 'none' }} onClick={() => setSettingsOpen(true)} aria-label={STRINGS[lang].settingsTitle}>
               <svg
                 width="16"
                 height="16"
@@ -473,7 +487,7 @@ export default function Page() {
             <button
               className="hb-ghost"
               onClick={() => {
-                setScenes([SEED_SCENE]);
+                setScenes([getSeedScene(lang)]);
                 setCurrent(0);
                 setSpeaker('kid');
                 setError('');
@@ -694,6 +708,7 @@ export default function Page() {
               speaker={speaker}
               onTranscript={(t) => setInput(t)}
               onListeningChange={setListening}
+              onTranscribingChange={setTranscribing}
               onError={(m) => setError(m)}
               onClearError={() => setError('')}
                       strings={{
@@ -731,13 +746,15 @@ export default function Page() {
               )}
             />
             <input
-              className="hb-input"
+              className={'hb-input' + (transcribing ? ' hb-transcribing' : '')}
               placeholder={
-                listening
-                  ? STRINGS[lang].listeningHint
-                  : speaker === 'kid'
-                    ? STRINGS[lang].kidPlaceholder
-                    : STRINGS[lang].dadPlaceholder
+                transcribing
+                  ? STRINGS[lang].transcribingHint
+                  : listening
+                    ? STRINGS[lang].listeningHint
+                    : speaker === 'kid'
+                      ? STRINGS[lang].kidPlaceholder
+                      : STRINGS[lang].dadPlaceholder
               }
               value={input}
               onChange={(e) => setInput(e.target.value)}

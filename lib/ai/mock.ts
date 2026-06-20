@@ -3,6 +3,11 @@ const MOCK_SCENES = [
     narration: '蝴蝶轻轻落在花瓣上，小恐龙看呆了。',
     followUpQuestion: '小恐龙接下来会做什么呢？',
     storySummary: '小恐龙在花园里看到一只蝴蝶停在花瓣上，他被美丽的蝴蝶吸引住了。',
+    en: {
+      narration: 'A butterfly landed softly on a petal, and the little dinosaur stared in wonder.',
+      followUpQuestion: 'What will the little dinosaur do next?',
+      storySummary: 'In the garden, the little dinosaur saw a butterfly resting on a petal and was enchanted by it.',
+    },
     svg: `<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
   <line x1="200" y1="280" x2="200" y2="180" stroke="#1f1c18" stroke-width="3" stroke-linecap="round"/>
   <circle cx="200" cy="170" r="18" fill="none" stroke="#1f1c18" stroke-width="3"/>
@@ -22,6 +27,11 @@ const MOCK_SCENES = [
     narration: '突然，花丛里跳出一只小青蛙！',
     followUpQuestion: '小青蛙想跟小恐龙说什么呢？',
     storySummary: '小恐龙在花园里看蝴蝶时，花丛中突然跳出一只小青蛙，两个小动物相遇了。',
+    en: {
+      narration: 'Suddenly, a little frog hopped out of the flowers!',
+      followUpQuestion: 'What does the little frog want to say to the dinosaur?',
+      storySummary: 'While the little dinosaur watched the butterfly, a little frog suddenly leapt out of the flowers, and the two animals met.',
+    },
     svg: `<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
   <ellipse cx="200" cy="210" rx="32" ry="26" fill="none" stroke="#1f1c18" stroke-width="3"/>
   <circle cx="220" cy="190" r="14" fill="none" stroke="#1f1c18" stroke-width="3"/>
@@ -41,6 +51,11 @@ const MOCK_SCENES = [
     narration: '小青蛙和小恐龙成了好朋友。',
     followUpQuestion: '两个好朋友准备一起去哪里呢？',
     storySummary: '小恐龙和花园里的小青蛙成了好朋友，它们在花园里一起玩耍。',
+    en: {
+      narration: 'The little frog and the little dinosaur became good friends.',
+      followUpQuestion: 'Where will the two friends go together?',
+      storySummary: 'The little dinosaur and the frog became good friends and played together in the garden.',
+    },
     svg: `<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
   <circle cx="260" cy="200" r="28" fill="none" stroke="#1f1c18" stroke-width="3"/>
   <circle cx="252" cy="192" r="5" fill="none" stroke="#1f1c18" stroke-width="2"/>
@@ -65,6 +80,11 @@ const MOCK_SCENES = [
     narration: '它们一起去看远处的彩虹。',
     followUpQuestion: '彩虹下面会有什么惊喜呢？',
     storySummary: '小恐龙和小青蛙这对好朋友一起出发去看远处天上的彩虹，旅途充满欢笑。',
+    en: {
+      narration: 'Together they set off to see the rainbow in the distance.',
+      followUpQuestion: 'What surprise waits at the end of the rainbow?',
+      storySummary: 'The little dinosaur and the frog set off together toward the faraway rainbow, their journey full of laughter.',
+    },
     svg: `<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
   <path d="M80 180 q90 -120 240 0" fill="none" stroke="#1f1c18" stroke-width="3" stroke-linecap="round"/>
   <path d="M100 180 q80 -100 200 0" fill="none" stroke="#1f1c18" stroke-width="2" stroke-linecap="round"/>
@@ -89,21 +109,23 @@ const MOCK_SCENES = [
   },
 ];
 
-export function getMockScene(index: number): { narration: string; svg: string } {
+export function getMockScene(index: number, lang: 'zh' | 'en' = 'zh'): { narration: string; svg: string } {
   const scene = MOCK_SCENES[index % MOCK_SCENES.length];
-  return { narration: scene.narration, svg: scene.svg };
+  const copy = lang === 'en' ? scene.en : scene;
+  return { narration: copy.narration, svg: scene.svg };
 }
 
-export function getMockText(index: number): {
+export function getMockText(index: number, lang: 'zh' | 'en' = 'zh'): {
   narration: string;
   followUpQuestion: string;
   storySummary: string;
 } {
   const scene = MOCK_SCENES[index % MOCK_SCENES.length];
+  const copy = lang === 'en' ? scene.en : scene;
   return {
-    narration: scene.narration,
-    followUpQuestion: scene.followUpQuestion,
-    storySummary: scene.storySummary,
+    narration: copy.narration,
+    followUpQuestion: copy.followUpQuestion,
+    storySummary: copy.storySummary,
   };
 }
 

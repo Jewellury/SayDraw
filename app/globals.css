@@ -375,6 +375,17 @@ body::before {
   color: rgba(31, 28, 24, 0.4);
 }
 
+/* Transcribing state — pulse the placeholder while the released audio POSTs. */
+.hb-transcribing::placeholder {
+  color: var(--accent, #d9622b);
+  animation: hbTranscribePulse 1.1s ease-in-out infinite;
+}
+
+@keyframes hbTranscribePulse {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 1; }
+}
+
 .hb-send {
   flex: 0 0 auto;
   display: flex;
