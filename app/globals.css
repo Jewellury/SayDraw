@@ -407,6 +407,16 @@ body::before {
   cursor: default;
 }
 
+/* Loading pulse for the send button */
+.hb-sending {
+  animation: hb-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes hb-pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
 /* ---------- Error ---------- */
 .hb-err {
   font-family: var(--font-secondary);
@@ -682,10 +692,6 @@ body::before {
 
   .hb-narration {
     font-size: 20px;
-  }
-
-  .hb-send span {
-    display: none;
   }
 
   .hb-head {

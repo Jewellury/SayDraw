@@ -763,55 +763,15 @@ export default function Page() {
               disabled={loading}
             />
             <button
-              className="hb-send"
-              style={{
-                width: 56,
-                height: 56,
-                borderRadius: '50%',
-                padding: 0,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                lineHeight: 0,
-              } as React.CSSProperties}
+              className={'hb-send' + (loading ? ' hb-sending' : '')}
               onClick={addScene}
               disabled={loading || !input.trim()}
               aria-label={loading ? STRINGS[lang].drawBtnLoadingAria : STRINGS[lang].drawBtn}
               title={loading ? STRINGS[lang].drawBtnLoadingAria : STRINGS[lang].drawBtn}
-            >
-              {loading ? (
-                <svg
-                  width="32"
-                  height="32"
-                  viewBox="0 0 32 32"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <line x1="10" y1="12" x2="20" y2="12" className="hb-jit1" />
-                  <line x1="10" y1="17" x2="20" y2="17" className="hb-jit2" />
-                  <line x1="10" y1="22" x2="20" y2="22" className="hb-jit3" />
-                </svg>
+            >{loading ? (
+                <span className="hb-send-label">{STRINGS[lang].drawBtnLoadingAria}</span>
               ) : (
-                <svg
-                  width="32"
-                  height="32"
-                  viewBox="0 0 32 32"
-                  fill="none"
-                  stroke="white"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
-                >
-                  <path d="M8 23 L19 8 L24 13 L13 26 Z" strokeWidth="1.8" />
-                  <path d="M13 26 L8 29 L10 24" strokeWidth="1.8" />
-                  <path d="M10 26.5 L10.5 27.5" strokeWidth="2" />
-                  <path d="M19 8 L21.5 5.5 L26.5 10.5 L24 13" strokeWidth="1.8" />
-                  <path d="M21.5 5.5 L24 8" strokeWidth="1.5" />
-                  <path d="M13 12 L20 19" strokeWidth="1.2" />
-                </svg>
+                <span className="hb-send-label">{STRINGS[lang].drawBtn}</span>
               )}
             </button>
           </div>

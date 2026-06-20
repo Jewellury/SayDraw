@@ -99,13 +99,19 @@ export async function POST(req: NextRequest) {
         : COMBINED_SYS
     );
 
-    const userMessage =
-      '目前的故事：\n' +
-      (storySoFar || '') +
-      '\n\n最新这一句是' +
-      (speaker === 'dad' ? '爸爸' : '宝宝') +
-      '说的：' +
-      newLine;
+    const userMessage = lang === 'en'
+      ? 'Current story:\n' +
+        (storySoFar || '') +
+        '\n\nThis latest line was said by ' +
+        (speaker === 'dad' ? 'Dad' : 'the child') +
+        ': ' +
+        newLine
+      : '目前的故事：\n' +
+        (storySoFar || '') +
+        '\n\n最新这一句是' +
+        (speaker === 'dad' ? '爸爸' : '宝宝') +
+        '说的：' +
+        newLine;
 
     let narration: string;
     let followUpQuestion: string;
