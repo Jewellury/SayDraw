@@ -118,6 +118,77 @@ export function butterflyWings(): string {
   return g(parts.join('\n'));
 }
 
+export function cloud(): string {
+  const parts: string[] = [];
+  parts.push(roughEllipse(-12, 4, 18, 10, 2));
+  parts.push(roughEllipse(12, 4, 20, 10, 2));
+  parts.push(roughEllipse(0, -2, 22, 12, 2));
+  parts.push(roughEllipse(-26, 8, 16, 8, 2));
+  return g(parts.join('\n'));
+}
+
+export function sun(): string {
+  const parts: string[] = [];
+  parts.push(roughCircle(0, 0, 18, 2.5));
+  for (let a = 0; a < 360; a += 45) {
+    const r = Math.PI * a / 180;
+    parts.push(roughLine(
+      Math.cos(r) * 22,
+      Math.sin(r) * 22,
+      Math.cos(r) * 30,
+      Math.sin(r) * 30,
+      2.5
+    ));
+  }
+  return g(parts.join('\n'));
+}
+
+export function meteor(): string {
+  const parts: string[] = [];
+  parts.push(roughEllipse(0, 0, 18, 10, 3));
+  parts.push(roughPath('M -18 -6 L -32 0 L -18 6 Z', 2.5));
+  return g(parts.join('\n'));
+}
+
+export function xEyes(): string {
+  const parts: string[] = [];
+  parts.push(roughLine(-7, -5, -2, 2, 2));
+  parts.push(roughLine(-2, -5, -7, 2, 2));
+  parts.push(roughLine(2, -5, 7, 2, 2));
+  parts.push(roughLine(7, -5, 2, 2, 2));
+  return g(parts.join('\n'));
+}
+
+export function heart(): string {
+  const parts: string[] = [];
+  parts.push(roughPath('M 0 -2 C -2 -12 -20 -14 -20 -4 C -20 8 0 18 0 18 C 0 18 20 8 20 -4 C 20 -14 2 -12 0 -2 Z', 2));
+  return g(parts.join('\n'));
+}
+
+export function motionLines(): string {
+  const parts: string[] = [];
+  parts.push(roughLine(-24, -6, -10, -6, 1.5));
+  parts.push(roughLine(-26, 0, -8, 0, 1.5));
+  parts.push(roughLine(-24, 6, -10, 6, 1.5));
+  return g(parts.join('\n'));
+}
+
+export function grass(): string {
+  const parts: string[] = [];
+  parts.push(roughPath('M -14 0 Q -11 -16 -6 -12', 1.5));
+  parts.push(roughPath('M -4 0 Q -1 -20 2 -18', 1.5));
+  parts.push(roughPath('M 6 0 Q 10 -16 14 -12', 1.5));
+  return g(parts.join('\n'));
+}
+
+export function dazedStars(): string {
+  const parts: string[] = [];
+  parts.push(roughPath('M -14 -10 L -12 -4 L -6 -4 L -11 0 L -9 6 L -14 2 L -19 6 L -17 0 L -22 -4 L -16 -4 Z', 1.5));
+  parts.push(roughPath('M 8 -12 L 10 -6 L 16 -6 L 11 -2 L 13 4 L 8 0 L 3 4 L 5 -2 L 0 -6 L 6 -6 Z', 1.5));
+  parts.push(roughPath('M -2 -18 L 0 -12 L 6 -12 L 1 -8 L 3 -2 L -2 -6 L -7 -2 L -5 -8 L -10 -12 L -4 -12 Z', 1.5));
+  return g(parts.join('\n'));
+}
+
 export const componentRegistry: Record<string, () => string> = {
   moon,
   stone,
@@ -131,4 +202,12 @@ export const componentRegistry: Record<string, () => string> = {
   ground: groundSegment,
   flower,
   butterfly_wings: butterflyWings,
+  cloud,
+  sun,
+  meteor,
+  x_eyes: xEyes,
+  heart,
+  motion_lines: motionLines,
+  grass,
+  dazed_stars: dazedStars,
 };

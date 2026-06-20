@@ -1,10 +1,10 @@
 # Active Spec
 
 **Status:** idle
-**Active Task:** —
-**Plan:** —
+**Active Task:** none
 **Approved:** —
 
 ## Handoff Notes
 
-(No active task. Ready for next plan-agent task.)
+- TASK-020 completed and audited (PASS, 0 findings)
+- Ready for next task

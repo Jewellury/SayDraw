@@ -48,6 +48,7 @@ function parseSemanticResponse(raw: string, fallbackNarration: string): {
   narration: string;
   followUpQuestion: string;
   storySummary: string;
+  sceneType: string;
   components: Array<{ id: string; role: string; drawOrder: number }>;
 } {
   try {
@@ -56,6 +57,7 @@ function parseSemanticResponse(raw: string, fallbackNarration: string): {
       narration: (typeof o.narration === 'string' && o.narration) || fallbackNarration,
       followUpQuestion: (typeof o.followUpQuestion === 'string' && o.followUpQuestion) || '',
       storySummary: (typeof o.storySummary === 'string' && o.storySummary) || '',
+      sceneType: (typeof o.sceneType === 'string' && o.sceneType) || '',
       components: Array.isArray(o.components) ? o.components : [],
     };
   } catch {
@@ -64,6 +66,7 @@ function parseSemanticResponse(raw: string, fallbackNarration: string): {
       narration: fallbackNarration,
       followUpQuestion: '',
       storySummary: '',
+      sceneType: '',
       components: [],
     };
   }
@@ -122,7 +125,10 @@ export async function POST(req: NextRequest) {
         storySummary = parsed.storySummary;
 
         if (parsed.components.length > 0) {
-          svg = renderScene(parsed.components as Array<{ id: string; role: 'support' | 'character' | 'detail' | 'background'; drawOrder: number }>);
+          svg = renderScene(
+            parsed.components as Array<{ id: string; role: 'support' | 'character' | 'detail' | 'background'; drawOrder: number }>,
+            parsed.sceneType || undefined
+          );
         } else {
           svg = FALLBACK_SVG;
         }

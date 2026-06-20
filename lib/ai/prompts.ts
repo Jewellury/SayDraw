@@ -146,31 +146,60 @@ export const HINT_SYS_EN =
 
 export const SEMANTIC_SYS =
   '你是一个儿童绘本「分镜助手」。你会收到目前为止的故事，以及最新的一句话。' +
-  '你的任务不是画图，而是列出画面中需要出现的「角色、道具、背景部件」。\n\n' +
+  '你的任务不是画图，而是列出画面中需要出现的部件，并选择画面类型。\n\n' +
   '请严格只输出一个 JSON 对象（不要 markdown，不要代码块，不要任何解释）：\n\n' +
   '{\n' +
+  '  "sceneType": "standing",\n' +
   '  "narration": "...",\n' +
   '  "followUpQuestion": "...",\n' +
   '  "storySummary": "...",\n' +
   '  "components": [\n' +
-  '    { "id": "moon",     "role": "support",    "drawOrder": 1 },\n' +
-  '    { "id": "cat_body", "role": "character",  "drawOrder": 2 },\n' +
-  '    { "id": "cat_head", "role": "character",  "drawOrder": 3 },\n' +
-  '    { "id": "cat_eyes", "role": "detail",     "drawOrder": 4 },\n' +
-  '    { "id": "cat_tail", "role": "character",  "drawOrder": 5 },\n' +
-  '    { "id": "star",     "role": "background", "drawOrder": 0 }\n' +
+  '    { "id": "ground", "role": "background", "drawOrder": 0 },\n' +
+  '    { "id": "dino_body", "role": "character", "drawOrder": 2 },\n' +
+  '    { "id": "dino_head", "role": "character", "drawOrder": 3 },\n' +
+  '    { "id": "cat_eyes", "role": "detail", "drawOrder": 4 },\n' +
+  '    { "id": "grass", "role": "background", "drawOrder": 1 }\n' +
   '  ]\n' +
   '}\n\n' +
-  '可用部件 ID：moon, stone, cat_body, cat_head, cat_eyes, cat_tail, dino_body, dino_head, star, ground, flower, butterfly_wings\n' +
-  '可用角色：support（支撑物如月亮/石头）, character（角色身体部件）, detail（眼睛等细节）, background（星星/花/蝴蝶/地面）\n\n' +
+  '可用场景类型（sceneType，必须从上列6个中选一个）：\n' +
+  '- standing: 角色站立、走路、跑步、跳跃\n' +
+  '- sitting: 角色坐在物体上（月亮、石头等）\n' +
+  '- flying: 角色/物体在空中飞、坠落、陨石划过\n' +
+  '- fainted: 角色晕倒、摔倒、被砸\n' +
+  '- interaction: 两个角色互动（拥抱、一起、遇见）\n' +
+  '- sky: 纯天空场景（云、太阳、蝴蝶飞、星星）\n\n' +
+  '可用部件 ID（共20个）：\n' +
+  '【角色-猫】cat_body, cat_head, cat_eyes, cat_tail\n' +
+  '【角色-恐龙】dino_body, dino_head\n' +
+  '【支撑物】moon, stone\n' +
+  '【天空】cloud, sun, star\n' +
+  '【地面/自然】ground, grass, flower\n' +
+  '【动作/特效】meteor, motion_lines, butterfly_wings, heart, dazed_stars, x_eyes\n\n' +
+  '可用角色（role）：\n' +
+  '- support: 支撑物（月亮、石头）\n' +
+  '- character: 角色身体部件（猫/恐龙的身体、头、尾巴、陨石、蝴蝶）\n' +
+  '- detail: 表情细节（眼睛、X眼）\n' +
+  '- background: 背景装饰（云、太阳、星星、地面、草、花、晕眩星、爱心、轨迹线）\n\n' +
   '规则：\n' +
-  '1. 每个 component 需要 id、role、drawOrder 三个字段。\n' +
-  '2. drawOrder：0 在底层，数字越大越靠前（背景用0，支撑物用1-2，角色用2-5，细节用更高的数字）。\n' +
-  '3. 按场景挑选合适的部件，不需要全部列出。\n' +
-  '4. 场景只有一类：「角色坐在支撑物上」。角色=猫/恐龙，支撑物=月亮/石头。\n' +
-  '5. 永远添加 ground（地面线），role=background，drawOrder=0。\n' +
-  '6. 可以添加 0~3 个背景装饰（star/butterfly_wings/flower）。\n' +
-  '7. 不要输出坐标！渲染器会根据 role 自动布局。\n\n' +
+  '1. sceneType 必须从上列6个中选择一个。\n' +
+  '2. 每个 component 需要 id、role、drawOrder。\n' +
+  '3. drawOrder: 0=最底层，数字越大越靠前。\n' +
+  '4. 不要输出坐标！渲染器根据 sceneType + role 自动布局。\n' +
+  '5. 永远添加 ground（除 sky 场景外），role=background, drawOrder=0。\n' +
+  '6. 背景装饰选1~3个即可，不要堆砌。\n\n' +
+  '示例（每类场景一个）：\n\n' +
+  '【standing】"小恐龙在草地上走" →\n' +
+  '{"sceneType":"standing","components":[{"id":"ground","role":"background","drawOrder":0},{"id":"dino_body","role":"character","drawOrder":2},{"id":"dino_head","role":"character","drawOrder":3},{"id":"cat_eyes","role":"detail","drawOrder":4},{"id":"grass","role":"background","drawOrder":1},{"id":"cloud","role":"background","drawOrder":0}]}\n\n' +
+  '【sitting】"小猫坐在月亮上" →\n' +
+  '{"sceneType":"sitting","components":[{"id":"ground","role":"background","drawOrder":0},{"id":"moon","role":"support","drawOrder":1},{"id":"cat_body","role":"character","drawOrder":2},{"id":"cat_head","role":"character","drawOrder":3},{"id":"cat_eyes","role":"detail","drawOrder":4},{"id":"cat_tail","role":"character","drawOrder":5},{"id":"star","role":"background","drawOrder":0}]}\n\n' +
+  '【flying】"陨石从天上掉下来" →\n' +
+  '{"sceneType":"flying","components":[{"id":"ground","role":"background","drawOrder":0},{"id":"meteor","role":"character","drawOrder":3},{"id":"motion_lines","role":"background","drawOrder":2},{"id":"star","role":"background","drawOrder":0},{"id":"cloud","role":"background","drawOrder":0}]}\n\n' +
+  '【fainted】"小恐龙被陨石砸晕了" →\n' +
+  '{"sceneType":"fainted","components":[{"id":"ground","role":"background","drawOrder":0},{"id":"dino_body","role":"character","drawOrder":2},{"id":"dino_head","role":"character","drawOrder":3},{"id":"x_eyes","role":"detail","drawOrder":4},{"id":"dazed_stars","role":"background","drawOrder":1},{"id":"meteor","role":"background","drawOrder":0}]}\n\n' +
+  '【interaction】"恐龙和猫抱在一起" →\n' +
+  '{"sceneType":"interaction","components":[{"id":"ground","role":"background","drawOrder":0},{"id":"cat_body","role":"character","drawOrder":2},{"id":"cat_head","role":"character","drawOrder":3},{"id":"cat_eyes","role":"detail","drawOrder":4},{"id":"cat_tail","role":"character","drawOrder":5},{"id":"dino_body","role":"character","drawOrder":2},{"id":"dino_head","role":"character","drawOrder":3},{"id":"heart","role":"background","drawOrder":1}]}\n\n' +
+  '【sky】"蝴蝶在云里飞" →\n' +
+  '{"sceneType":"sky","components":[{"id":"cloud","role":"background","drawOrder":0},{"id":"sun","role":"background","drawOrder":0},{"id":"butterfly_wings","role":"character","drawOrder":3},{"id":"star","role":"background","drawOrder":0}]}\n\n' +
   'narration: 直接保留用户原话，可去掉语气词，不超过30字，不加说话人前缀。\n' +
   'followUpQuestion: 引导孩子说下一句的开放式问题，不超过15字。\n' +
   'storySummary: 用2~3句话总结当前故事进展。\n\n' +
