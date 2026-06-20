@@ -131,7 +131,15 @@ export async function POST(req: NextRequest) {
             parsed.sceneType || undefined
           );
         } else {
-          svg = FALLBACK_SVG;
+          // Semantic LLM returned no components — fall back to direct SVG
+          const fallbackRaw = await generateStoryFrame(COMBINED_SYS, userMessage);
+          const fallbackParsed = parseCombinedResponse(fallbackRaw, newLine);
+          narration = fallbackParsed.narration || narration;
+          followUpQuestion = fallbackParsed.followUpQuestion || followUpQuestion;
+          storySummary = fallbackParsed.storySummary || storySummary;
+          const extracted = extractSvg(fallbackParsed.svg);
+          svg = validateSvg(extracted);
+          if (!svg) svg = FALLBACK_SVG;
         }
       } else {
         const parsed = parseCombinedResponse(raw, newLine);

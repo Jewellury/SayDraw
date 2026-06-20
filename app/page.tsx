@@ -213,13 +213,14 @@ export default function Page() {
 
   const filmRef = useRef<HTMLDivElement>(null);
   const voiceRef = useRef<{ stop: () => void } | null>(null);
-  // Renderer path. `?strategy=semantic` opts a session into the semantic
-  // renderer (TASK-019/020); everything else uses the direct SVG path.
-  const strategyRef = useRef<'direct' | 'semantic'>('direct');
+  // Renderer path. ?strategy=direct forces the direct SVG path.
+  // Default is semantic (TASK-019/020).
+  const strategyRef = useRef<'direct' | 'semantic'>('semantic');
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const p = new URLSearchParams(window.location.search).get('strategy');
+    if (p === 'direct') strategyRef.current = 'direct';
     if (p === 'semantic') strategyRef.current = 'semantic';
   }, []);
 
